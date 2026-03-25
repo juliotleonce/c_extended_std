@@ -5,7 +5,9 @@ set(CMAKE_C_STANDARD 11)
 
 add_library(extended_std SHARED
         xarray.c
-        xarray.h)
+        xarray.h
+        xhashmap.c
+        xhashmap.h)
 
 target_include_directories(extended_std PUBLIC .)
 

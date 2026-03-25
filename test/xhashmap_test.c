@@ -61,7 +61,7 @@ void run_all_xhashmap_tests(void) {
 static void test_basic_new_and_put(void) {
     TEST_START("Basic Creation & Single Insert");
 
-    XHashMap *map = xhashmap_new(sizeof(int));
+    XHashMap *map = XHASHMAP_NEW(int);
 
     SECTION("Creating hashmap with type_size=sizeof(int)");
     printf("  map = %p\n", (void*)map);
@@ -100,7 +100,7 @@ static void test_basic_new_and_put(void) {
 static void test_multiple_insertions(void) {
     TEST_START("Multiple Insertions (Hash Collision Scenarios)");
 
-    XHashMap *map = xhashmap_new(sizeof(double));
+    XHashMap *map = XHASHMAP_NEW(double);
 
     SECTION("Inserting multiple entries");
 
@@ -160,7 +160,7 @@ static void test_multiple_insertions(void) {
 static void test_update_existing_key(void) {
     TEST_START("Update Existing Key");
 
-    XHashMap *map = xhashmap_new(sizeof(int));
+    XHashMap *map = XHASHMAP_NEW(int);
 
     SECTION("Initial insertion");
     const int value1 = 100;
@@ -194,7 +194,7 @@ static void test_update_existing_key(void) {
 static void test_nonexistent_key(void) {
     TEST_START("Non-existent Key Retrieval");
 
-    XHashMap *map = xhashmap_new(sizeof(int));
+    XHashMap *map = XHASHMAP_NEW(int);
 
     SECTION("Testing non-existent keys");
     const int value = 999;
@@ -248,7 +248,7 @@ static void test_struct_values(void) {
         float score;
     } User;
 
-    XHashMap *map = xhashmap_new(sizeof(User));
+    XHashMap *map = XHASHMAP_NEW(User);
 
     SECTION("Creating users");
 
@@ -311,7 +311,7 @@ static void test_struct_values(void) {
 static void test_edge_cases(void) {
     TEST_START("Edge Cases (Special Keys)");
 
-    XHashMap *map = xhashmap_new(sizeof(int));
+    XHashMap *map = XHASHMAP_NEW(int);
 
     SECTION("Testing special keys");
 
@@ -370,13 +370,13 @@ static void test_memory_safety(void) {
     TEST_START("Memory Safety Tests");
 
     SECTION("Test 1: Free empty hashmap");
-    XHashMap *empty_map = xhashmap_new(sizeof(int));
+    XHashMap *empty_map = XHASHMAP_NEW(int);
     printf("  Created empty hashmap: %p\n", (void*)empty_map);
     xhashmap_free(empty_map);
     printf("  Freed empty hashmap successfully\n");
 
     SECTION("Test 2: Multiple inserts then free");
-    XHashMap *map = xhashmap_new(sizeof(int));
+    XHashMap *map = XHASHMAP_NEW(int);
     for (int i = 0; i < 100; i++) {
         xhashmap_put(map, "test", &i);
     }
@@ -386,14 +386,14 @@ static void test_memory_safety(void) {
 
     SECTION("Test 3: Various types");
     // Test with different type sizes
-    XHashMap *char_map = xhashmap_new(sizeof(char));
+    XHashMap *char_map = XHASHMAP_NEW(char);
     const char c = 'X';
     xhashmap_put(char_map, "char_test", &c);
     const char *c_ret = (char*)xhashmap_get(char_map, "char_test");
     printf("  char test: %c %s\n", *c_ret, (*c_ret == 'X') ? "[OK]" : "[FAIL]");
     xhashmap_free(char_map);
 
-    XHashMap *long_map = xhashmap_new(sizeof(long));
+    XHashMap *long_map = XHASHMAP_NEW(long);
     const long l = 1234567890123L;
     xhashmap_put(long_map, "long_test", &l);
     const long *l_ret = (long*)xhashmap_get(long_map, "long_test");
@@ -409,7 +409,7 @@ static void test_memory_safety(void) {
 static void test_stress(void) {
     TEST_START("Stress Test (1000+ Entries)");
 
-    XHashMap *map = xhashmap_new(sizeof(int));
+    XHashMap *map = XHASHMAP_NEW(int);
 
     SECTION("Inserting 1000 entries");
     for (int i = 0; i < 1000; i++) {

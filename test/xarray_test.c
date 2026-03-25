@@ -57,7 +57,7 @@ void run_all_xarray_tests(void) {
 static void test_basic_new_and_push(void) {
     TEST_START("Basic Creation & Single Push");
 
-    XArray *array = xarray_new(sizeof(int));
+    XArray *array = XARRAY_NEW(int);
 
     SECTION("Creating array with type_size=sizeof(int)");
     printf("  array = %p\n", (void*)array);
@@ -105,7 +105,7 @@ static void test_basic_new_and_push(void) {
 static void test_multiple_insertions(void) {
     TEST_START("Multiple Insertions");
 
-    XArray *array = xarray_new(sizeof(double));
+    XArray *array = XARRAY_NEW(double);
 
     SECTION("Pushing multiple elements");
 
@@ -131,7 +131,7 @@ static void test_multiple_insertions(void) {
     printf("  Retrieving and verifying all values:\n");
     int all_ok = 1;
     for (size_t i = 0; i < num_values; i++) {
-        double *retrieved = (double*)xarray_get(array, (unsigned)i);
+        const double *retrieved = (double*)xarray_get(array, (unsigned)i);
         if (*retrieved == values[i]) {
             printf("    \033[0;32m✓\033[0m [%zu] %.2f [OK]\n", i, *retrieved);
         } else {
@@ -156,7 +156,7 @@ static void test_multiple_insertions(void) {
 static void test_get_by_index(void) {
     TEST_START("Get Element by Index");
 
-    XArray *array = xarray_new(sizeof(int));
+    XArray *array = XARRAY_NEW(int);
 
     SECTION("Pushing sequential values");
     const int values[] = {10, 20, 30, 40, 50};
@@ -222,7 +222,7 @@ static void test_struct_values(void) {
         float score;
     } User;
 
-    XArray *array = xarray_new(sizeof(User));
+    XArray *array = XARRAY_NEW(User);
 
     SECTION("Creating users");
 
@@ -249,7 +249,7 @@ static void test_struct_values(void) {
     const User originals[] = {user1, user2, user3};
 
     for (size_t i = 0; i < 3; i++) {
-        User *retrieved = (User*)xarray_get(array, (unsigned)i);
+        User *retrieved = xarray_get(array, (unsigned)i);
         if (retrieved != NULL) {
             printf("  Retrieved user at index %zu:\n", i);
             printf("    id=%d, name=\"%s\", score=%.1f\n",
@@ -285,7 +285,7 @@ static void test_edge_cases(void) {
     TEST_START("Edge Cases (Various Data Types)");
 
     SECTION("Test 1: Single character");
-    XArray *char_array = xarray_new(sizeof(char));
+    XArray *char_array = xarray_create_from_type_size(sizeof(char));
     const char chars[] = {'A', 'B', 'C', 'D'};
     for (size_t i = 0; i < 4; i++) {
         xarray_push(char_array, &chars[i]);
@@ -293,7 +293,7 @@ static void test_edge_cases(void) {
     printf("  Pushed 4 characters\n");
     int char_ok = 1;
     for (size_t i = 0; i < 4; i++) {
-        char *c = (char*)xarray_get(char_array, (unsigned)i);
+        const char *c = (char*)xarray_get(char_array, (unsigned)i);
         if (*c != chars[i]) char_ok = 0;
         printf("    [%zu] '%c' %s\n", i, *c, (*c == chars[i]) ? "\033[0;32m[OK]\033[0m" : "\033[0;31m[FAIL]\033[0m");
     }
@@ -305,7 +305,7 @@ static void test_edge_cases(void) {
     printf("  \033[0;32m✓\033[0m Char test passed\n");
 
     SECTION("Test 2: Long integers");
-    XArray *long_array = xarray_new(sizeof(long));
+    XArray *long_array = XARRAY_NEW(long);
     const long longs[] = {0L, -1L, 1234567890123L, -9876543210L};
     for (size_t i = 0; i < 4; i++) {
         xarray_push(long_array, &longs[i]);
@@ -313,7 +313,7 @@ static void test_edge_cases(void) {
     printf("  Pushed 4 long values\n");
     int long_ok = 1;
     for (size_t i = 0; i < 4; i++) {
-        long *l = (long*)xarray_get(long_array, (unsigned)i);
+        const long *l = (long*)xarray_get(long_array, (unsigned)i);
         if (*l != longs[i]) long_ok = 0;
         printf("    [%zu] %ld %s\n", i, *l, (*l == longs[i]) ? "\033[0;32m[OK]\033[0m" : "\033[0;31m[FAIL]\033[0m");
     }
@@ -325,7 +325,7 @@ static void test_edge_cases(void) {
     printf("  \033[0;32m✓\033[0m Long test passed\n");
 
     SECTION("Test 3: Strings (char arrays)");
-    XArray *str_array = xarray_new(sizeof(char) * 32);
+    XArray *str_array = XARRAY_NEW(char[32]);
     const char *strings[] = {"Hello", "World", "Test", "XArray"};
     for (size_t i = 0; i < 4; i++) {
         xarray_push(str_array, strings[i]);
@@ -333,7 +333,7 @@ static void test_edge_cases(void) {
     printf("  Pushed 4 strings\n");
     int str_ok = 1;
     for (size_t i = 0; i < 4; i++) {
-        char *s = (char*)xarray_get(str_array, (unsigned)i);
+        char *s = xarray_get(str_array, (unsigned)i);
         if (strcmp(s, strings[i]) != 0) str_ok = 0;
         printf("    [%zu] \"%s\" %s\n", i, s, (strcmp(s, strings[i]) == 0) ? "\033[0;32m[OK]\033[0m" : "\033[0;31m[FAIL]\033[0m");
     }
@@ -345,7 +345,7 @@ static void test_edge_cases(void) {
     printf("  \033[0;32m✓\033[0m String test passed\n");
 
     SECTION("Test 4: Empty array operations");
-    XArray *empty = xarray_new(sizeof(int));
+    XArray *empty = XARRAY_NEW(int);
     printf("  Created empty array, length: %u\n", empty->length);
     if (empty->length == 0) {
         printf("  \033[0;32m✓\033[0m Empty array has length 0\n");
@@ -367,14 +367,14 @@ static void test_memory_safety(void) {
     TEST_START("Memory Safety Tests");
 
     SECTION("Test 1: Free empty array");
-    XArray *empty_array = xarray_new(sizeof(int));
+    XArray *empty_array = XARRAY_NEW(int);
     printf("  Created empty array: %p\n", (void*)empty_array);
     printf("  Length: %u\n", empty_array->length);
     xarray_free(empty_array);
     printf("  Freed empty array successfully\n");
 
     SECTION("Test 2: Multiple pushes then free");
-    XArray *array = xarray_new(sizeof(int));
+    XArray *array = XARRAY_NEW(int);
     printf("  Pushing 100 entries...\n");
     for (int i = 0; i < 100; i++) {
         xarray_push(array, &i);
@@ -384,7 +384,7 @@ static void test_memory_safety(void) {
     printf("  Freed populated array successfully\n");
 
     SECTION("Test 3: Reallocation behavior");
-    XArray *grow_array = xarray_new(sizeof(int));
+    XArray *grow_array = XARRAY_NEW(int);
     printf("  Growing array from 1 to 1000 elements...\n");
     for (int i = 0; i < 1000; i++) {
         xarray_push(grow_array, &i);
@@ -397,7 +397,7 @@ static void test_memory_safety(void) {
     // Verify all values are still correct after reallocations
     int errors = 0;
     for (int i = 0; i < 1000; i++) {
-        int *val = (int*)xarray_get(grow_array, (unsigned)i);
+        const int *val = (int*)xarray_get(grow_array, (unsigned)i);
         if (*val != i) {
             errors++;
         }
@@ -421,7 +421,7 @@ static void test_memory_safety(void) {
 static void test_stress(void) {
     TEST_START("Stress Test (10000 Entries)");
 
-    XArray *array = xarray_new(sizeof(int));
+    XArray *array = XARRAY_NEW(int);
 
     SECTION("Pushing 10000 entries");
     for (int i = 0; i < 10000; i++) {
@@ -433,7 +433,7 @@ static void test_stress(void) {
     SECTION("Verifying all entries");
     int errors = 0;
     for (int i = 0; i < 10000; i++) {
-        int *retrieved = (int*)xarray_get(array, (unsigned)i);
+        const int *retrieved = (int*)xarray_get(array, (unsigned)i);
         if (*retrieved != i) {
             errors++;
             if (errors <= 5) {

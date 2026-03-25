@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-XArray *xarray_new(const size_t type_size) {
+XArray *xarray_create_from_type_size(const size_t type_size) {
     XArray *xarray = malloc(sizeof(XArray));
     xarray->length = 0;
     xarray->type_size = type_size;
@@ -24,7 +24,7 @@ void xarray_push(XArray *xarray, const void *data) {
     memcpy(xarray->data + (xarray->length - 1) * xarray->type_size, data, xarray->type_size);
 }
 
-void *xarray_get(XArray *xarray, unsigned index) {
+void *xarray_get(XArray *xarray, const unsigned index) {
     if (index >= xarray->length) {
         xarray_free(xarray);
         printf("Index out of bounds\n");

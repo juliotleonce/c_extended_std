@@ -6,13 +6,15 @@
 #define EXTENDED_STD_XARRAY_H
 #include <stdlib.h>
 
+#define XARRAY_NEW(ElementType) xarray_create_from_type_size(sizeof(ElementType))
+
 typedef struct XArray {
     unsigned length;
     size_t type_size;
     void *data;
 } XArray;
 
-XArray *xarray_new(size_t type_size);
+XArray *xarray_create_from_type_size(size_t type_size);
 
 void xarray_push(XArray *xarray, const void *data);
 

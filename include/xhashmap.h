@@ -2,6 +2,7 @@
 #define EXTENDED_STD_XHASHMAP_H
 #define INITIAL_CAPACITY 8
 #define LOAD_FACTOR 0.75f
+#define XHASHMAP_NEW(ItemsValueType) xhashmap_create_from_type_size(sizeof(ItemsValueType))
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -19,7 +20,7 @@ typedef struct {
     size_t type_size;
 } XHashMap;
 
-XHashMap *xhashmap_new(size_t type_size);
+XHashMap *xhashmap_create_from_type_size(size_t type_size);
 
 void xhashmap_put(XHashMap *xhashmap, const char *key, const void *value);
 

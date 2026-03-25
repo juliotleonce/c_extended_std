@@ -11,7 +11,7 @@ static void xhashmap_entry_copy(const XHashMapEntry *entry_to_copy, XHashMapEntr
 static void xhashmap_entry_swap(XHashMapEntry *entry_a, XHashMapEntry *entry_b, size_t value_type_size);
 static void xhashmap_entry_free(XHashMapEntry *entry);
 
-XHashMap *xhashmap_new(const size_t type_size) {
+XHashMap *xhashmap_create_from_type_size(const size_t type_size) {
     XHashMap *xhashmap = calloc(1, sizeof(XHashMap));
     if (xhashmap == NULL) {
         printf("Can't allocate memory for XHashMap\n");

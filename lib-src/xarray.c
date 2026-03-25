@@ -1,4 +1,4 @@
-#include "xarray.h"
+#include "../include/xarray.h"
 
 #include <stdio.h>
 #include <stdlib.h>

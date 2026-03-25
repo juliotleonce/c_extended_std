@@ -14,6 +14,7 @@ target_include_directories(extended_std PUBLIC .)
 
 add_executable(test_custom_std test/test.c
         test/xhashmap_test.c
+        test/xarray_test.c
         test/test_utils.h
         test/test_utils.c)
 

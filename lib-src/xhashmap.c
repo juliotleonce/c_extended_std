@@ -66,16 +66,16 @@ void xhashmap_put(XHashMap *xhashmap, const char *key, const void *value) {
 }
 
 XArray *xhashmap_keys(const XHashMap* xhashmap){
-    XArray *xarray = xarray_create_from_type_size(xhashmap->type_size);
+    XArray *xarray = xarray_create_from_type_size(sizeof(char*));
     for (unsigned i = 0; i < xhashmap->capacity; ++i) {
         if (xhashmap->entries[i].is_taken) {
-            xarray_push(xarray, xhashmap->entries[i].key);
+            xarray_push(xarray, &xhashmap->entries[i].key);
         }
     }
     return xarray;
 }
 
-XArray *xhashmap_value(const XHashMap* xhashmap){
+XArray *xhashmap_values(const XHashMap* xhashmap){
     XArray *xarray = xarray_create_from_type_size(xhashmap->type_size);
     for (unsigned i = 0; i < xhashmap->capacity; ++i) {
         if (xhashmap->entries[i].is_taken) {

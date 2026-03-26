@@ -6,27 +6,32 @@
 static float xhashmap_load_factor(const XHashMap *xhashmap);
 static unsigned xhashmap_hash_key(const XHashMap *xhashmap, const char *key);
 static void xhashmap_resize(XHashMap *xhashmap);
-static XHashMapEntry *xhashmap_entry_new(const char *key, const void *value, size_t value_type_size);
 static void xhashmap_entry_copy(const XHashMapEntry *entry_to_copy, XHashMapEntry *entry_dest, size_t value_type_size);
 static void xhashmap_entry_swap(XHashMapEntry *entry_a, XHashMapEntry *entry_b, size_t value_type_size);
-static void xhashmap_entry_free(XHashMapEntry *entry);
+static XHashMapEntry *xhashmap_entry_new(const char *key, const void *value, size_t value_type_size);
+static void xhashmap_entry_clean_update(XHashMapEntry *entry, const char *key, const void *value, size_t value_type_size);
+static void xhashmap_entry_update(XHashMapEntry *entry, const char *key, const void *value, size_t value_type_size);
+static void xhashmap_entry_reset(XHashMapEntry *entry);
 
 XHashMap *xhashmap_create_from_type_size(const size_t type_size) {
     XHashMap *xhashmap = calloc(1, sizeof(XHashMap));
+
     if (xhashmap == NULL) {
         printf("Can't allocate memory for XHashMap\n");
         exit(1);
     }
+
     xhashmap->entries = calloc(INITIAL_CAPACITY, sizeof(XHashMapEntry));
     xhashmap->capacity = INITIAL_CAPACITY;
     xhashmap->items_account = 0;
     xhashmap->type_size = type_size;
+
     return xhashmap;
 }
 
+
 void xhashmap_put(XHashMap *xhashmap, const char *key, const void *value) {
-    const float load_factor = xhashmap_load_factor(xhashmap);
-    if (load_factor > LOAD_FACTOR) {
+    if (xhashmap_load_factor(xhashmap) > LOAD_FACTOR) {
         xhashmap_resize(xhashmap);
     }
 
@@ -60,6 +65,25 @@ void xhashmap_put(XHashMap *xhashmap, const char *key, const void *value) {
     free(entry_to_insert);
 }
 
+void xhashmap_remove(XHashMap *xhashmap, const char *key) {
+    unsigned index = xhashmap_hash_key(xhashmap, key);
+    unsigned psl = 0;
+
+    while (true) {
+        XHashMapEntry *entry = &xhashmap->entries[index];
+
+        if (!entry->is_taken) break;
+        if (entry->psl < psl) break;
+        if (strcmp(entry->key, key) == 0) {
+            xhashmap_entry_reset(entry);
+            xhashmap->items_account--;
+        }
+
+        psl++;
+        index = (index + 1) % xhashmap->capacity;
+    }
+}
+
 void *xhashmap_get(const XHashMap *xhashmap, const char *key) {
     unsigned index = xhashmap_hash_key(xhashmap, key);
     unsigned psl = 0;
@@ -79,14 +103,23 @@ void *xhashmap_get(const XHashMap *xhashmap, const char *key) {
 void xhashmap_free(XHashMap *xhashmap) {
     for (unsigned i = 0; i < xhashmap->capacity; ++i) {
         if (xhashmap->entries[i].is_taken) {
-            free(xhashmap->entries[i].key);
-            free(xhashmap->entries[i].value);
+            xhashmap_entry_reset(&xhashmap->entries[i]);
         }
     }
     free(xhashmap->entries);
     free(xhashmap);
 }
 
+/**
+ * PRIVATE FUNCTION IMPLEMENTATION GOES BELOW
+ *
+ */
+
+
+
+static float xhashmap_load_factor(const XHashMap *xhashmap) {
+    return (float)xhashmap->items_account / (float)xhashmap->capacity;
+}
 
 static unsigned xhashmap_hash_key(const XHashMap *xhashmap, const char *key) {
     unsigned int h = 5381;
@@ -95,7 +128,7 @@ static unsigned xhashmap_hash_key(const XHashMap *xhashmap, const char *key) {
     return h % xhashmap->capacity;
 }
 
-void xhashmap_resize(XHashMap *xhashmap) {
+static void xhashmap_resize(XHashMap *xhashmap) {
     const unsigned old_capacity = xhashmap->capacity;
     XHashMapEntry *old_entries = xhashmap->entries;
 
@@ -112,56 +145,65 @@ void xhashmap_resize(XHashMap *xhashmap) {
     free(old_entries);
 }
 
-XHashMapEntry *xhashmap_entry_new(const char *key, const void *value, const size_t value_type_size) {
+static void xhashmap_entry_copy(const XHashMapEntry *entry_to_copy, XHashMapEntry *entry_dest, const size_t value_type_size) {
+    const char *copy_key = entry_to_copy->key;
+    const void *copy_value = entry_to_copy->value;
+    xhashmap_entry_clean_update(entry_dest, copy_key, copy_value, value_type_size);
+    entry_dest->psl = entry_to_copy->psl;
+}
+
+static void xhashmap_entry_swap(XHashMapEntry *entry_a, XHashMapEntry *entry_b, const size_t value_type_size) {
+    char temp_value[value_type_size];
+    XHashMapEntry *temp = xhashmap_entry_new("", &temp_value, value_type_size);
+
+    xhashmap_entry_copy(entry_a, temp, value_type_size);
+    xhashmap_entry_copy(entry_b, entry_a, value_type_size);
+    xhashmap_entry_copy(temp, entry_b, value_type_size);
+
+    xhashmap_entry_reset(temp);
+    free(temp);
+}
+
+static XHashMapEntry *xhashmap_entry_new(const char *key, const void *value, const size_t value_type_size) {
     XHashMapEntry *entry = calloc(1, sizeof(XHashMapEntry));
     if (entry == NULL) {
         printf("Can't allocate memory for XHashMapEntry\n");
         exit(1);
     }
-
-    entry->key = calloc(1, strlen(key) + 1);
-    entry->value = calloc(1, value_type_size);
-
-    memcpy(entry->key, key, strlen(key) + 1);
-    memcpy(entry->value, value, value_type_size);
-
-    entry->is_taken = true;
-    entry->psl = 0;
-
+    xhashmap_entry_update(entry, key, value, value_type_size);
     return entry;
 }
 
-void xhashmap_entry_copy(const XHashMapEntry *entry_to_copy, XHashMapEntry *entry_dest, const size_t value_type_size) {
-    entry_dest->key = calloc(1, strlen(entry_to_copy->key) + 1);
-    entry_dest->value = calloc(1, value_type_size);
+static void xhashmap_entry_update(XHashMapEntry *entry, const char *key, const void *value,const size_t value_type_size) {
+    entry->key = calloc(1, strlen(key) + 1);
+    entry->value = calloc(1, value_type_size);
+    entry->is_taken = true;
 
-    memcpy(entry_dest->key, entry_to_copy->key, strlen(entry_to_copy->key) + 1);
-    memcpy(entry_dest->value, entry_to_copy->value, value_type_size);
-
-    entry_dest->is_taken = true;
-    entry_dest->psl = entry_to_copy->psl;
+    memcpy(entry->key, key, strlen(key) + 1);
+    memcpy(entry->value, value, value_type_size);
 }
 
-void xhashmap_entry_swap(XHashMapEntry *entry_a, XHashMapEntry *entry_b, const size_t value_type_size) {
-    XHashMapEntry *temp = malloc(sizeof(XHashMapEntry));
-    if (temp == NULL) {
-        printf("Can't allocate memory for temporary entry\n");
-        exit(1);
+static void xhashmap_entry_clean_update(XHashMapEntry *entry, const char *key, const void *value, const size_t value_type_size) {
+    const unsigned psl = entry->psl;
+    xhashmap_entry_reset(entry);
+    xhashmap_entry_update(entry, key, value, value_type_size);
+    entry->psl = psl;
+}
+
+static void xhashmap_entry_reset(XHashMapEntry *entry) {
+    entry->psl = 0;
+    entry->is_taken = false;
+    if (entry->key != NULL) {
+        free(entry->key);
+        entry->key = NULL;
     }
-    xhashmap_entry_copy(entry_a, temp, value_type_size);
-    xhashmap_entry_copy(entry_b, entry_a, value_type_size);
-    xhashmap_entry_copy(temp, entry_b, value_type_size);
-
-    xhashmap_entry_free(temp);
+    if (entry->value != NULL) {
+        free(entry->value);
+        entry->value = NULL;
+    }
 }
 
-void xhashmap_entry_free(XHashMapEntry *entry) {
-    free(entry->key);
-    free(entry->value);
-    free(entry);
-}
 
-static float xhashmap_load_factor(const XHashMap *xhashmap) {
-    return (float)xhashmap->items_account / (float)xhashmap->capacity;
-}
+
+
 

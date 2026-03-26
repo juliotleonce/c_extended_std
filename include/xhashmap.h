@@ -5,6 +5,7 @@
 #define XHASHMAP_NEW(ItemsValueType) xhashmap_create_from_type_size(sizeof(ItemsValueType))
 #include <stdbool.h>
 #include <stddef.h>
+#include "xarray.h"
 
 typedef struct {
     char *key;
@@ -24,10 +25,16 @@ XHashMap *xhashmap_create_from_type_size(size_t type_size);
 
 void xhashmap_put(XHashMap *xhashmap, const char *key, const void *value);
 
+XArray *xhashmap_keys(const XHashMap *xhashmap);
+
+XArray *xhashmap_values(const XHashMap *xhashmap);
+
 void xhashmap_remove(XHashMap *xhashmap, const char *key);
 
 void *xhashmap_get(const XHashMap *xhashmap, const char *key);
 
 void xhashmap_free(XHashMap *xhashmap);
+
+char **keys_to_array(const XHashMap *xhashmap, unsigned *out_count);
 
 #endif //EXTENDED_STD_XHASHMAP_H

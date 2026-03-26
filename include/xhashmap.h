@@ -24,6 +24,8 @@ XHashMap *xhashmap_create_from_type_size(size_t type_size);
 
 void xhashmap_put(XHashMap *xhashmap, const char *key, const void *value);
 
+void xhashmap_remove(XHashMap *xhashmap, const char *key);
+
 void *xhashmap_get(const XHashMap *xhashmap, const char *key);
 
 void xhashmap_free(XHashMap *xhashmap);

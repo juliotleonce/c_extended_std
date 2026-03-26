@@ -1,6 +1,5 @@
 #ifndef EXTENDED_STD_TEST_MACROS_H
 #define EXTENDED_STD_TEST_MACROS_H
-
 #include <stdio.h>
 #include <stdlib.h>
 

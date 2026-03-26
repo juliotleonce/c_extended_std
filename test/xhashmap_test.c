@@ -12,6 +12,7 @@ static void test_struct_values(void);
 static void test_edge_cases(void);
 static void test_memory_safety(void);
 static void test_stress(void);
+static void test_remove(void);
 
 
 void run_all_xhashmap_tests(void) {
@@ -45,6 +46,9 @@ void run_all_xhashmap_tests(void) {
     print_separator();
 
     test_stress();
+    print_separator();
+
+    test_remove();
     print_separator();
 
 
@@ -445,4 +449,102 @@ static void test_stress(void) {
     }
 
     xhashmap_free(map);
+}
+
+// ========================================
+// Test 9: Remove Key-Value Pairs
+// ========================================
+static void test_remove(void) {
+    TEST_START("Remove Key-Value Pairs");
+
+    XHashMap *map = XHASHMAP_NEW(int);
+
+    SECTION("Test 1: Basic removal of existing key");
+    const int val1 = 100;
+    const int val2 = 200;
+    const int val3 = 300;
+
+    xhashmap_put(map, "key1", &val1);
+    xhashmap_put(map, "key2", &val2);
+    xhashmap_put(map, "key3", &val3);
+
+    printf("  Inserted: key1=%d, key2=%d, key3=%d\n", val1, val2, val3);
+
+    SECTION("Verify all keys exist before removal");
+    int *retrieved1 = (int*)xhashmap_get(map, "key1");
+    int *retrieved2 = (int*)xhashmap_get(map, "key2");
+    int *retrieved3 = (int*)xhashmap_get(map, "key3");
+
+    printf("  key1: %d\n", *retrieved1);
+    printf("  key2: %d\n", *retrieved2);
+    printf("  key3: %d\n", *retrieved3);
+
+    SECTION("Remove key2");
+    printf("  Removing key2...\n");
+    xhashmap_remove(map, "key2");
+
+    SECTION("Verify key2 is removed");
+    int *after_remove = (int*)xhashmap_get(map, "key2");
+    if (after_remove == NULL) {
+        printf("  \033[0;32m✓\033[0m key2 -> NULL [Correctly removed]\n");
+    } else {
+        printf("  \033[0;31m✗\033[0m key2 -> %d [Should be NULL]\n", *after_remove);
+        xhashmap_free(map);
+        TEST_FAIL("Key was not removed");
+        return;
+    }
+
+    SECTION("Verify other keys are unaffected");
+    int *still_key1 = (int*)xhashmap_get(map, "key1");
+    int *still_key3 = (int*)xhashmap_get(map, "key3");
+
+    int other_ok = 1;
+    if (still_key1 != NULL && *still_key1 == val1) {
+        printf("  \033[0;32m✓\033[0m key1 -> %d [Still correct]\n", *still_key1);
+    } else {
+        printf("  \033[0;31m✗\033[0m key1 [Broken]\n");
+        other_ok = 0;
+    }
+
+    if (still_key3 != NULL && *still_key3 == val3) {
+        printf("  \033[0;32m✓\033[0m key3 -> %d [Still correct]\n", *still_key3);
+    } else {
+        printf("  \033[0;31m✗\033[0m key3 [Broken]\n");
+        other_ok = 0;
+    }
+
+    if (!other_ok) {
+        xhashmap_free(map);
+        TEST_FAIL("Other keys were affected by removal");
+        return;
+    }
+
+    SECTION("Test 2: Remove non-existent key (should be safe)");
+    printf("  Removing non-existent key...\n");
+    xhashmap_remove(map, "nonexistent");
+    printf("  No crash - safe to remove non-existent key\n");
+
+    SECTION("Test 3: Remove from empty map (should be safe)");
+    XHashMap *empty_map = XHASHMAP_NEW(int);
+    printf("  Removing from empty map...\n");
+    xhashmap_remove(empty_map, "any_key");
+    printf("  No crash - safe to remove from empty map\n");
+    xhashmap_free(empty_map);
+
+    SECTION("Test 4: Reinsert after removal");
+    const int new_val = 999;
+    xhashmap_put(map, "key2", &new_val);
+    int *reinserted = (int*)xhashmap_get(map, "key2");
+    if (reinserted != NULL && *reinserted == new_val) {
+        printf("  \033[0;32m✓\033[0m key2 reinserted -> %d [OK]\n", *reinserted);
+    } else {
+        printf("  \033[0;31m✗\033[0m Reinsert failed\n");
+        xhashmap_free(map);
+        TEST_FAIL("Reinsert after removal failed");
+        return;
+    }
+
+    printf("  All removal tests passed\n");
+    xhashmap_free(map);
+    TEST_PASS();
 }

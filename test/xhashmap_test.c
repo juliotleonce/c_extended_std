@@ -13,6 +13,7 @@ static void test_edge_cases(void);
 static void test_memory_safety(void);
 static void test_stress(void);
 static void test_remove(void);
+static void test_keys_and_values(void);
 
 
 void run_all_xhashmap_tests(void) {
@@ -49,6 +50,9 @@ void run_all_xhashmap_tests(void) {
     print_separator();
 
     test_remove();
+    print_separator();
+
+    test_keys_and_values();
     print_separator();
 
 
@@ -96,6 +100,81 @@ static void test_basic_new_and_put(void) {
     xhashmap_free(map);
     printf("  HashMap freed successfully\n");
 
+}
+
+// ========================================
+// Test 10: Keys and Values Retrieval
+// ========================================
+static void test_keys_and_values(void) {
+    TEST_START("Keys and Values Retrieval");
+
+    XHashMap *map = XHASHMAP_NEW(int);
+    int val1 = 10, val2 = 20, val3 = 30;
+
+    xhashmap_put(map, "key1", &val1);
+    xhashmap_put(map, "key2", &val2);
+    xhashmap_put(map, "key3", &val3);
+
+    SECTION("Retrieving all keys");
+    XArray *keys = xhashmap_keys(map);
+    printf("  Keys count: %u (Expected: 3)\n", keys->length);
+
+    if (keys->length != 3) {
+        TEST_FAIL("Incorrect keys count");
+        xarray_free(keys);
+        xhashmap_free(map);
+        return;
+    }
+
+    bool found_key1 = false, found_key2 = false, found_key3 = false;
+    for (unsigned i = 0; i < keys->length; ++i) {
+        char *key = *(char**)xarray_get(keys, i);
+        printf("  Found key: %s\n", key);
+        if (strcmp(key, "key1") == 0) found_key1 = true;
+        if (strcmp(key, "key2") == 0) found_key2 = true;
+        if (strcmp(key, "key3") == 0) found_key3 = true;
+    }
+
+    if (found_key1 && found_key2 && found_key3) {
+        printf("  Result: \033[0;32mOK\033[0m - All keys found!\n");
+    } else {
+        TEST_FAIL("Some keys are missing");
+        xarray_free(keys);
+        xhashmap_free(map);
+        return;
+    }
+    xarray_free(keys);
+
+    SECTION("Retrieving all values");
+    XArray *values = xhashmap_values(map);
+    printf("  Values count: %u (Expected: 3)\n", values->length);
+
+    if (values->length != 3) {
+        TEST_FAIL("Incorrect values count");
+        xarray_free(values);
+        xhashmap_free(map);
+        return;
+    }
+
+    bool found_val1 = false, found_val2 = false, found_val3 = false;
+    for (unsigned i = 0; i < values->length; ++i) {
+        int val = *(int*)xarray_get(values, i);
+        printf("  Found value: %d\n", val);
+        if (val == 10) found_val1 = true;
+        if (val == 20) found_val2 = true;
+        if (val == 30) found_val3 = true;
+    }
+
+    if (found_val1 && found_val2 && found_val3) {
+        printf("  Result: \033[0;32mOK\033[0m - All values found!\n");
+        TEST_PASS();
+    } else {
+        TEST_FAIL("Some values are missing");
+    }
+
+    xarray_free(values);
+    xhashmap_free(map);
+    printf("  HashMap freed successfully\n");
 }
 
 // ========================================
@@ -471,9 +550,9 @@ static void test_remove(void) {
     printf("  Inserted: key1=%d, key2=%d, key3=%d\n", val1, val2, val3);
 
     SECTION("Verify all keys exist before removal");
-    int *retrieved1 = (int*)xhashmap_get(map, "key1");
-    int *retrieved2 = (int*)xhashmap_get(map, "key2");
-    int *retrieved3 = (int*)xhashmap_get(map, "key3");
+    const int *retrieved1 = (int*)xhashmap_get(map, "key1");
+    const int *retrieved2 = (int*)xhashmap_get(map, "key2");
+    const int *retrieved3 = (int*)xhashmap_get(map, "key3");
 
     printf("  key1: %d\n", *retrieved1);
     printf("  key2: %d\n", *retrieved2);
@@ -495,8 +574,8 @@ static void test_remove(void) {
     }
 
     SECTION("Verify other keys are unaffected");
-    int *still_key1 = (int*)xhashmap_get(map, "key1");
-    int *still_key3 = (int*)xhashmap_get(map, "key3");
+    const int *still_key1 = (int*)xhashmap_get(map, "key1");
+    const int *still_key3 = (int*)xhashmap_get(map, "key3");
 
     int other_ok = 1;
     if (still_key1 != NULL && *still_key1 == val1) {

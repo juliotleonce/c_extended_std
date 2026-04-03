@@ -13,7 +13,7 @@ static void xhashmap_entry_clean_update(XHashMapEntry *entry, const char *key, c
 static void xhashmap_entry_update(XHashMapEntry *entry, const char *key, const void *value, size_t value_type_size);
 static void xhashmap_entry_reset(XHashMapEntry *entry);
 
-XHashMap *xhashmap_create_from_type_size(const size_t type_size) {
+XHashMap *xhashmap_new(const size_t type_size) {
     XHashMap *xhashmap = calloc(1, sizeof(XHashMap));
 
     if (xhashmap == NULL) {
@@ -48,9 +48,8 @@ void xhashmap_put(XHashMap *xhashmap, const char *key, const void *value) {
         }
 
         if (strcmp(existing_entry->key, key) == 0) {
-            free(entry_to_insert->value);
-            entry_to_insert->value = calloc(1, xhashmap->type_size);
             memcpy(existing_entry->value, value, xhashmap->type_size);
+            xhashmap_entry_reset(entry_to_insert);
             break;
         }
 
@@ -66,7 +65,7 @@ void xhashmap_put(XHashMap *xhashmap, const char *key, const void *value) {
 }
 
 XArray *xhashmap_keys(const XHashMap* xhashmap){
-    XArray *xarray = xarray_create_from_type_size(sizeof(char*));
+    XArray *xarray = xarray_new(sizeof(char*));
     for (unsigned i = 0; i < xhashmap->capacity; ++i) {
         if (xhashmap->entries[i].is_taken) {
             xarray_push(xarray, &xhashmap->entries[i].key);
@@ -76,7 +75,7 @@ XArray *xhashmap_keys(const XHashMap* xhashmap){
 }
 
 XArray *xhashmap_values(const XHashMap* xhashmap){
-    XArray *xarray = xarray_create_from_type_size(xhashmap->type_size);
+    XArray *xarray = xarray_new(xhashmap->type_size);
     for (unsigned i = 0; i < xhashmap->capacity; ++i) {
         if (xhashmap->entries[i].is_taken) {
             xarray_push(xarray, xhashmap->entries[i].value);
@@ -97,6 +96,21 @@ void xhashmap_remove(XHashMap *xhashmap, const char *key) {
         if (strcmp(entry->key, key) == 0) {
             xhashmap_entry_reset(entry);
             xhashmap->items_account--;
+
+            while (true) {
+                const unsigned neighbour_index = (index + 1) % xhashmap->capacity;
+                XHashMapEntry *neighbour = &xhashmap->entries[neighbour_index];
+
+                if (!neighbour->is_taken || neighbour->psl == 0) break;
+
+                xhashmap_entry_copy(neighbour, entry, xhashmap->type_size);
+                xhashmap->entries[neighbour_index].psl--;
+                xhashmap_entry_reset(neighbour);
+
+                index = neighbour_index;
+                entry = &xhashmap->entries[index];
+            }
+            return;
         }
 
         psl++;

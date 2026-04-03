@@ -285,7 +285,7 @@ static void test_edge_cases(void) {
     TEST_START("Edge Cases (Various Data Types)");
 
     SECTION("Test 1: Single character");
-    XArray *char_array = xarray_create_from_type_size(sizeof(char));
+    XArray *char_array = xarray_new(sizeof(char));
     const char chars[] = {'A', 'B', 'C', 'D'};
     for (size_t i = 0; i < 4; i++) {
         xarray_push(char_array, &chars[i]);

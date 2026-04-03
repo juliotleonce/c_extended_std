@@ -4,7 +4,7 @@
 #include <string.h>
 
 static float xhashmap_load_factor(const XHashMap *xhashmap);
-static unsigned xhashmap_hash_key(const XHashMap *xhashmap, const char *key);
+static unsigned xhashmap_hash_key(unsigned capacity, const char *key);
 static void xhashmap_resize(XHashMap *xhashmap);
 static void xhashmap_entry_copy(const XHashMapEntry *entry_to_copy, XHashMapEntry *entry_dest, size_t value_type_size);
 static void xhashmap_entry_swap(XHashMapEntry *entry_a, XHashMapEntry *entry_b, size_t value_type_size);
@@ -35,7 +35,7 @@ void xhashmap_put(XHashMap *xhashmap, const char *key, const void *value) {
         xhashmap_resize(xhashmap);
     }
 
-    unsigned index = xhashmap_hash_key(xhashmap, key);
+    unsigned index = xhashmap_hash_key(xhashmap->capacity, key);
     XHashMapEntry *entry_to_insert = xhashmap_entry_new(key, value, xhashmap->type_size);
 
     while (true) {
@@ -85,7 +85,7 @@ XArray *xhashmap_values(const XHashMap* xhashmap){
 }
 
 void xhashmap_remove(XHashMap *xhashmap, const char *key) {
-    unsigned index = xhashmap_hash_key(xhashmap, key);
+    unsigned index = xhashmap_hash_key(xhashmap->capacity, key);
     unsigned psl = 0;
 
     while (true) {
@@ -119,7 +119,7 @@ void xhashmap_remove(XHashMap *xhashmap, const char *key) {
 }
 
 void *xhashmap_get(const XHashMap *xhashmap, const char *key) {
-    unsigned index = xhashmap_hash_key(xhashmap, key);
+    unsigned index = xhashmap_hash_key(xhashmap->capacity, key);
     unsigned psl = 0;
 
     while (true) {
@@ -155,11 +155,11 @@ static float xhashmap_load_factor(const XHashMap *xhashmap) {
     return (float)xhashmap->items_account / (float)xhashmap->capacity;
 }
 
-static unsigned xhashmap_hash_key(const XHashMap *xhashmap, const char *key) {
+static unsigned xhashmap_hash_key(const unsigned capacity, const char *key) {
     unsigned int h = 5381;
     while (*key)
         h = (h << 5) + h ^ (unsigned char)*key++;
-    return h % xhashmap->capacity;
+    return h % capacity;
 }
 
 static void xhashmap_resize(XHashMap *xhashmap) {

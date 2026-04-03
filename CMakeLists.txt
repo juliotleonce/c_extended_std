@@ -8,6 +8,8 @@ add_library(extended_std SHARED
         include/xarray.h
         lib-src/xhashmap.c
         include/xhashmap.h
+        include/xhashset.h
+        lib-src/xhashset.c
 )
 
 target_include_directories(extended_std PUBLIC .)

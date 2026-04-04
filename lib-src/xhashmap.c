@@ -103,8 +103,8 @@ void xhashmap_remove(XHashMap *xhashmap, const char *key) {
 
                 if (!neighbour->is_taken || neighbour->psl == 0) break;
 
-                xhashmap_entry_copy(neighbour, entry, xhashmap->type_size);
                 xhashmap->entries[neighbour_index].psl--;
+                xhashmap_entry_copy(neighbour, entry, xhashmap->type_size);
                 xhashmap_entry_reset(neighbour);
 
                 index = neighbour_index;
@@ -204,7 +204,9 @@ static XHashMapEntry *xhashmap_entry_new(const char *key, const void *value, con
         printf("Can't allocate memory for XHashMapEntry\n");
         exit(1);
     }
+
     xhashmap_entry_update(entry, key, value, value_type_size);
+
     return entry;
 }
 
@@ -227,10 +229,12 @@ static void xhashmap_entry_clean_update(XHashMapEntry *entry, const char *key, c
 static void xhashmap_entry_reset(XHashMapEntry *entry) {
     entry->psl = 0;
     entry->is_taken = false;
+
     if (entry->key != NULL) {
         free(entry->key);
         entry->key = NULL;
     }
+
     if (entry->value != NULL) {
         free(entry->value);
         entry->value = NULL;

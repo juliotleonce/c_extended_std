@@ -17,7 +17,7 @@ XHashSet *xhashset_new(const size_t type_size, const XHashSetEqualFn equal_fn, c
         exit(1);
     }
 
-    xhashset->items = calloc(INITIAL_CAPACITY, sizeof(void*));
+    xhashset->items = calloc(INITIAL_CAPACITY, sizeof(XHashSetItem));
     xhashset->capacity = INITIAL_CAPACITY;
     xhashset->items_account = 0;
     xhashset->type_size = type_size;
@@ -27,35 +27,42 @@ XHashSet *xhashset_new(const size_t type_size, const XHashSetEqualFn equal_fn, c
     return xhashset;
 }
 
-void xhashset_add(XHashSet *xhashset, void *item_value){
+void xhashset_add(XHashSet *xhashset, const void *item_value){
     if (xhashset_load_factor(xhashset) > LOAD_FACTOR){
         xhashset_resize(xhashset);
     }
 
     unsigned index = xhashset->hash_fn(xhashset->capacity, item_value, xhashset->type_size);
-
+    void *current_value = malloc(xhashset->type_size);
     unsigned psl = 0;
+
+    memcpy(current_value, item_value, xhashset->type_size);
 
     while (true){
         XHashSetItem *existing_item = &xhashset->items[index];
 
         if (!existing_item->is_taken){
-            existing_item->value = calloc(1, xhashset->type_size);
-            memcpy(existing_item->value, item_value, xhashset->type_size);
+            existing_item->value = current_value;
             existing_item->is_taken = true;
             existing_item->psl = psl;
             xhashset->items_account++;
             break;
         }
 
-        if (!xhashset->equal_fn(existing_item->value, item_value, xhashset->type_size)) {
+        if (xhashset->equal_fn(existing_item->value, item_value, xhashset->type_size)) {
+            free(current_value);
             break;
         }
 
         if (existing_item->psl < psl) {
-            const void *tmp = existing_item->value;
-            memcpy(existing_item->value, item_value, xhashset->type_size);
-            memcpy(item_value, tmp, xhashset->type_size);
+            void *tmp_value  = existing_item->value;
+            const unsigned tmp_psl = existing_item->psl;
+
+            existing_item->value = current_value;
+            existing_item->psl = psl;
+
+            current_value = tmp_value;
+            psl = tmp_psl;
         }
 
         psl++;
@@ -98,6 +105,7 @@ void xhashset_remove(XHashSet *xhashset, const void *item_value) {
 
                 if (!neighbour->is_taken || neighbour->psl == 0) break;
 
+                item->value = calloc(xhashset->type_size, sizeof(char));
                 memcpy(item->value, neighbour->value, xhashset->type_size);
                 item->psl = neighbour->psl - 1;
                 item->is_taken = true;
@@ -175,15 +183,9 @@ XHashSet *xhashset_difference(const XHashSet *xhashset_a, const XHashSet *xhashs
     for (unsigned i = 0; i < xhashset_a->capacity; ++i) {
         if (!xhashset_a->items[i].is_taken) continue;
         void *item_value = xhashset_a->items[i].value;
-        if (xhashset_has(xhashset_b, item_value)) continue;
-        xhashset_add(difference_set, item_value);
-    }
-
-    for (unsigned i = 0; i < xhashset_b->capacity; ++i) {
-        if (!xhashset_b->items[i].is_taken) continue;
-        void *item_value = xhashset_b->items[i].value;
-        if (xhashset_has(xhashset_a, item_value)) continue;
-        xhashset_add(difference_set, item_value);
+        if (!xhashset_has(xhashset_b, item_value)) {
+            xhashset_add(difference_set, item_value);
+        }
     }
 
     return difference_set;

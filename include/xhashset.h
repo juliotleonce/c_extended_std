@@ -13,7 +13,7 @@
 #include "xarray.h"
 
 typedef unsigned (*XHashSetHashFn) (unsigned capacity, const void *element, size_t type_size);
-typedef int (*XHashSetEqualFn) (const void *a, const void *b, size_t type_size);
+typedef bool (*XHashSetEqualFn) (const void *a, const void *b, size_t type_size);
 
 typedef struct{
     void *value;
@@ -32,7 +32,7 @@ typedef struct{
 
 XHashSet *xhashset_new(size_t type_size, XHashSetEqualFn equal_fn, XHashSetHashFn hash_fn);
 
-void xhashset_add(XHashSet *xhashset, void *item_value);
+void xhashset_add(XHashSet *xhashset, const void *item_value);
 
 bool xhashset_has(const XHashSet *xhashset, const void *item_value);
 

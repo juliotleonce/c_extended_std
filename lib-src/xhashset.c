@@ -160,7 +160,7 @@ XHashSet *xhashset_intersection(const XHashSet *xhashset_a, const XHashSet *xhas
 
     for (unsigned i = 0; i < xhashset_a->capacity; ++i) {
         if (!xhashset_a->items[i].is_taken) continue;
-        void *item_value = xhashset_a->items[i].value;
+        const void *item_value = xhashset_a->items[i].value;
         if (!xhashset_has(xhashset_b, item_value)) continue;
         xhashset_add(intersection_set, item_value);
     }
@@ -182,7 +182,7 @@ XHashSet *xhashset_difference(const XHashSet *xhashset_a, const XHashSet *xhashs
 
     for (unsigned i = 0; i < xhashset_a->capacity; ++i) {
         if (!xhashset_a->items[i].is_taken) continue;
-        void *item_value = xhashset_a->items[i].value;
+        const void *item_value = xhashset_a->items[i].value;
         if (!xhashset_has(xhashset_b, item_value)) {
             xhashset_add(difference_set, item_value);
         }

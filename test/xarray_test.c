@@ -93,7 +93,7 @@ static void test_basic_new_and_push(void) {
     }
 
     SECTION("Retrieving value at index 0");
-    int *retrieved = (int*)xarray_get(array, 0);
+    int *retrieved = (int*)xarray_at(array, 0);
     printf("  Retrieved: %d\n", *retrieved);
     if (*retrieved == 42) {
         printf("  Result: \033[0;32mOK\033[0m - Value matches!\n");
@@ -137,8 +137,8 @@ static void test_xarray_copy(void) {
     }
 
     for (unsigned i = 0; i < copy->length; i++) {
-        int *orig_val = (int*)xarray_get(original, i);
-        int *copy_val = (int*)xarray_get(copy, i);
+        int *orig_val = (int*)xarray_at(original, i);
+        int *copy_val = (int*)xarray_at(copy, i);
         if (*orig_val != *copy_val) {
             TEST_FAIL("Copy value mismatch");
             xarray_free(original);
@@ -190,7 +190,7 @@ static void test_xarray_from_tab(void) {
     }
 
     for (unsigned i = 0; i < length; i++) {
-        int *val = (int*)xarray_get(array, i);
+        int *val = (int*)xarray_at(array, i);
         if (*val != tab[i]) {
             TEST_FAIL("Value mismatch in array from tab");
             xarray_free(array);
@@ -201,7 +201,7 @@ static void test_xarray_from_tab(void) {
 
     SECTION("Modifying original tab and checking independence");
     tab[0] = 999;
-    int *val_after = (int*)xarray_get(array, 0);
+    int *val_after = (int*)xarray_at(array, 0);
     if (*val_after == 1) {
         printf("  Result: \033[0;32mOK\033[0m - XArray is independent from original tab!\n");
     } else {
@@ -246,7 +246,7 @@ static void test_multiple_insertions(void) {
     printf("  Retrieving and verifying all values:\n");
     int all_ok = 1;
     for (size_t i = 0; i < num_values; i++) {
-        const double *retrieved = (double*)xarray_get(array, (unsigned)i);
+        const double *retrieved = (double*)xarray_at(array, (unsigned)i);
         if (*retrieved == values[i]) {
             printf("    \033[0;32m✓\033[0m [%zu] %.2f [OK]\n", i, *retrieved);
         } else {
@@ -287,27 +287,27 @@ static void test_get_by_index(void) {
     int all_ok = 1;
 
     // Test first element
-    int *first = (int*)xarray_get(array, 0);
+    int *first = (int*)xarray_at(array, 0);
     printf("    [0] = %d %s\n", *first, (*first == 10) ? "\033[0;32m[OK]\033[0m" : "\033[0;31m[FAIL]\033[0m");
     if (*first != 10) all_ok = 0;
 
     // Test middle element
-    int *middle = (int*)xarray_get(array, 2);
+    int *middle = (int*)xarray_at(array, 2);
     printf("    [2] = %d %s\n", *middle, (*middle == 30) ? "\033[0;32m[OK]\033[0m" : "\033[0;31m[FAIL]\033[0m");
     if (*middle != 30) all_ok = 0;
 
     // Test last element
-    int *last = (int*)xarray_get(array, (unsigned)(num_values - 1));
+    int *last = (int*)xarray_at(array, (unsigned)(num_values - 1));
     printf("    [%zu] = %d %s\n", num_values - 1, *last, (*last == 50) ? "\033[0;32m[OK]\033[0m" : "\033[0;31m[FAIL]\033[0m");
     if (*last != 50) all_ok = 0;
 
     // Test modifying value through pointer
     SECTION("Modifying value through get pointer");
-    int *elem = (int*)xarray_get(array, 1);
+    int *elem = (int*)xarray_at(array, 1);
     *elem = 999;
     printf("  Modified element at index 1 to %d\n", *elem);
 
-    int *updated = (int*)xarray_get(array, 1);
+    int *updated = (int*)xarray_at(array, 1);
     printf("  Retrieved again: %d\n", *updated);
     if (*updated == 999) {
         printf("  Result: \033[0;32mOK\033[0m - Value modified successfully!\n");
@@ -364,7 +364,7 @@ static void test_struct_values(void) {
     const User originals[] = {user1, user2, user3};
 
     for (size_t i = 0; i < 3; i++) {
-        User *retrieved = xarray_get(array, (unsigned)i);
+        User *retrieved = xarray_at(array, (unsigned)i);
         if (retrieved != NULL) {
             printf("  Retrieved user at index %zu:\n", i);
             printf("    id=%d, name=\"%s\", score=%.1f\n",
@@ -408,7 +408,7 @@ static void test_edge_cases(void) {
     printf("  Pushed 4 characters\n");
     int char_ok = 1;
     for (size_t i = 0; i < 4; i++) {
-        const char *c = (char*)xarray_get(char_array, (unsigned)i);
+        const char *c = (char*)xarray_at(char_array, (unsigned)i);
         if (*c != chars[i]) char_ok = 0;
         printf("    [%zu] '%c' %s\n", i, *c, (*c == chars[i]) ? "\033[0;32m[OK]\033[0m" : "\033[0;31m[FAIL]\033[0m");
     }
@@ -428,7 +428,7 @@ static void test_edge_cases(void) {
     printf("  Pushed 4 long values\n");
     int long_ok = 1;
     for (size_t i = 0; i < 4; i++) {
-        const long *l = (long*)xarray_get(long_array, (unsigned)i);
+        const long *l = (long*)xarray_at(long_array, (unsigned)i);
         if (*l != longs[i]) long_ok = 0;
         printf("    [%zu] %ld %s\n", i, *l, (*l == longs[i]) ? "\033[0;32m[OK]\033[0m" : "\033[0;31m[FAIL]\033[0m");
     }
@@ -448,7 +448,7 @@ static void test_edge_cases(void) {
     printf("  Pushed 4 strings\n");
     int str_ok = 1;
     for (size_t i = 0; i < 4; i++) {
-        char *s = xarray_get(str_array, (unsigned)i);
+        char *s = xarray_at(str_array, (unsigned)i);
         if (strcmp(s, strings[i]) != 0) str_ok = 0;
         printf("    [%zu] \"%s\" %s\n", i, s, (strcmp(s, strings[i]) == 0) ? "\033[0;32m[OK]\033[0m" : "\033[0;31m[FAIL]\033[0m");
     }
@@ -512,7 +512,7 @@ static void test_memory_safety(void) {
     // Verify all values are still correct after reallocations
     int errors = 0;
     for (int i = 0; i < 1000; i++) {
-        const int *val = (int*)xarray_get(grow_array, (unsigned)i);
+        const int *val = (int*)xarray_at(grow_array, (unsigned)i);
         if (*val != i) {
             errors++;
         }
@@ -548,7 +548,7 @@ static void test_stress(void) {
     SECTION("Verifying all entries");
     int errors = 0;
     for (int i = 0; i < 10000; i++) {
-        const int *retrieved = (int*)xarray_get(array, (unsigned)i);
+        const int *retrieved = (int*)xarray_at(array, (unsigned)i);
         if (*retrieved != i) {
             errors++;
             if (errors <= 5) {

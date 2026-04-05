@@ -10,6 +10,10 @@ add_library(extended_std SHARED
         include/xhashmap.h
         include/xhashset.h
         lib-src/xhashset.c
+        include/xstring.h
+        lib-src/xstring.c
+        include/xlinked_list.h
+        lib-src/xlinked_list.c
 )
 
 target_include_directories(extended_std PUBLIC .)
@@ -18,6 +22,7 @@ add_executable(test_custom_std test/test.c
         test/xhashmap_test.c
         test/xhashset_test.c
         test/xarray_test.c
+        test/xlinked_list_test.c
         test/test_utils.h
         test/test_utils.c)
 

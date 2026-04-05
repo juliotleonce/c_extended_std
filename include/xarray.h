@@ -11,7 +11,7 @@
 typedef struct XArray {
     unsigned length;
     size_t type_size;
-    void *tab;
+    void *c_tab;
 } XArray;
 
 XArray *xarray_new(size_t type_size);

@@ -151,7 +151,7 @@ void test_xhashset_values() {
     for(int i=0; i<3; i++) {
         bool found = false;
         for(unsigned j=0; j<arr->length; j++) {
-            if (*(int*)xarray_get(arr, j) == vals[i]) {
+            if (*(int*)xarray_at(arr, j) == vals[i]) {
                 found = true;
                 break;
             }

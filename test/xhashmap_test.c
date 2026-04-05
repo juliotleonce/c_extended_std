@@ -128,7 +128,7 @@ static void test_keys_and_values(void) {
 
     bool found_key1 = false, found_key2 = false, found_key3 = false;
     for (unsigned i = 0; i < keys->length; ++i) {
-        char *key = *(char**)xarray_get(keys, i);
+        char *key = *(char**)xarray_at(keys, i);
         printf("  Found key: %s\n", key);
         if (strcmp(key, "key1") == 0) found_key1 = true;
         if (strcmp(key, "key2") == 0) found_key2 = true;
@@ -158,7 +158,7 @@ static void test_keys_and_values(void) {
 
     bool found_val1 = false, found_val2 = false, found_val3 = false;
     for (unsigned i = 0; i < values->length; ++i) {
-        int val = *(int*)xarray_get(values, i);
+        int val = *(int*)xarray_at(values, i);
         printf("  Found value: %d\n", val);
         if (val == 10) found_val1 = true;
         if (val == 20) found_val2 = true;

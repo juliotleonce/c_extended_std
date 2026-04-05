@@ -20,7 +20,7 @@ void xarray_push(XArray *xarray, const void *data);
 
 void xarray_pop(XArray *xarray, void *output);
 
-void *xarray_get(XArray *xarray, unsigned index);
+void *xarray_at(XArray *xarray, unsigned index);
 
 XArray *xarray_copy(const XArray *xarray);
 

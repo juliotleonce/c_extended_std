@@ -34,6 +34,8 @@ void xlinked_list_push(XLinkedList *xlinked_list, const void *value);
 
 XLinkedListIterator xlinked_list_iterator(const XLinkedList *xlinked_list);
 
+void *xlinked_list_at(const XLinkedList *xlinked_list, unsigned index);
+
 void xlinked_list_iterator_next(XLinkedListIterator *iterator);
 
 void xlinked_list_free(XLinkedList *xlinked_list);

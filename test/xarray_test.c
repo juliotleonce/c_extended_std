@@ -11,6 +11,8 @@ static void test_struct_values(void);
 static void test_edge_cases(void);
 static void test_memory_safety(void);
 static void test_stress(void);
+static void test_xarray_copy(void);
+static void test_xarray_from_tab(void);
 
 
 void run_all_xarray_tests(void) {
@@ -41,6 +43,12 @@ void run_all_xarray_tests(void) {
     print_separator();
 
     test_stress();
+    print_separator();
+
+    test_xarray_copy();
+    print_separator();
+
+    test_xarray_from_tab();
     print_separator();
 
 
@@ -97,6 +105,113 @@ static void test_basic_new_and_push(void) {
     xarray_free(array);
     printf("  Array freed successfully\n");
 
+}
+
+// ========================================
+// Test 8: XArray Copy
+// ========================================
+static void test_xarray_copy(void) {
+    TEST_START("XArray Copy");
+
+    XArray *original = XARRAY_NEW(int);
+    int values[] = {10, 20, 30, 40, 50};
+    for (int i = 0; i < 5; i++) {
+        xarray_push(original, &values[i]);
+    }
+
+    SECTION("Copying original array");
+    XArray *copy = xarray_copy(original);
+
+    SECTION("Verifying copy content and independence");
+    if (copy == NULL) {
+        TEST_FAIL("Failed to copy array");
+        xarray_free(original);
+        return;
+    }
+
+    if (copy->length != original->length) {
+        TEST_FAIL("Copy length mismatch");
+        xarray_free(original);
+        xarray_free(copy);
+        return;
+    }
+
+    for (unsigned i = 0; i < copy->length; i++) {
+        int *orig_val = (int*)xarray_get(original, i);
+        int *copy_val = (int*)xarray_get(copy, i);
+        if (*orig_val != *copy_val) {
+            TEST_FAIL("Copy value mismatch");
+            xarray_free(original);
+            xarray_free(copy);
+            return;
+        }
+    }
+    printf("  Result: \033[0;32mOK\033[0m - Values match!\n");
+
+    SECTION("Modifying copy and checking independence");
+    int new_val = 99;
+    xarray_push(copy, &new_val);
+    if (copy->length == original->length + 1) {
+        printf("  Result: \033[0;32mOK\033[0m - Copy is independent!\n");
+    } else {
+        TEST_FAIL("Copy is not independent");
+        xarray_free(original);
+        xarray_free(copy);
+        return;
+    }
+
+    xarray_free(original);
+    xarray_free(copy);
+    TEST_PASS();
+}
+
+// ========================================
+// Test 9: XArray From Tab
+// ========================================
+static void test_xarray_from_tab(void) {
+    TEST_START("XArray From Tab");
+
+    SECTION("Creating XArray from C array (int tab)");
+    int tab[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    unsigned length = sizeof(tab) / sizeof(tab[0]);
+
+    XArray *array = xarray_from_tab(tab, length, sizeof(int));
+
+    if (array == NULL) {
+        TEST_FAIL("Failed to create array from tab");
+        return;
+    }
+
+    SECTION("Verifying length and content");
+    if (array->length != length) {
+        TEST_FAIL("Length mismatch after xarray_from_tab");
+        xarray_free(array);
+        return;
+    }
+
+    for (unsigned i = 0; i < length; i++) {
+        int *val = (int*)xarray_get(array, i);
+        if (*val != tab[i]) {
+            TEST_FAIL("Value mismatch in array from tab");
+            xarray_free(array);
+            return;
+        }
+    }
+    printf("  Result: \033[0;32mOK\033[0m - All values from tab match!\n");
+
+    SECTION("Modifying original tab and checking independence");
+    tab[0] = 999;
+    int *val_after = (int*)xarray_get(array, 0);
+    if (*val_after == 1) {
+        printf("  Result: \033[0;32mOK\033[0m - XArray is independent from original tab!\n");
+    } else {
+        TEST_FAIL("XArray is not independent from original tab");
+        xarray_free(array);
+        return;
+    }
+
+    xarray_free(array);
+    TEST_PASS();
 }
 
 // ========================================

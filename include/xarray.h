@@ -11,14 +11,20 @@
 typedef struct XArray {
     unsigned length;
     size_t type_size;
-    void *data;
+    void *tab;
 } XArray;
 
 XArray *xarray_new(size_t type_size);
 
 void xarray_push(XArray *xarray, const void *data);
 
+void xarray_pop(XArray *xarray, void *output);
+
 void *xarray_get(XArray *xarray, unsigned index);
+
+XArray *xarray_copy(const XArray *xarray);
+
+XArray *xarray_from_tab(const void *tab, unsigned length, size_t type_size);
 
 void xarray_free(XArray *xarray);
 

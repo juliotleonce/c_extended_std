@@ -5,11 +5,12 @@
 #include <string.h>
 
 XLinkedList *xlinked_list_new(const size_t value_type_size) {
-    XLinkedList *xlinked_list = malloc(sizeof(XLinkedList));
+    XLinkedList *xlinked_list = calloc(1, sizeof(XLinkedList));
 
     xlinked_list->head = NULL;
     xlinked_list->tail = NULL;
     xlinked_list->value_type_size = value_type_size;
+    xlinked_list->length = 0;
 
     return xlinked_list;
 }
@@ -54,8 +55,9 @@ void xlinked_list_free(XLinkedList *xlinked_list) {
 
     while (iterator.current != NULL) {
         free(iterator.current->value);
-        free(iterator.current);
+        XLinkedListNode *node_to_free = iterator.current;
         iterator.next_fn(&iterator);
+        free(node_to_free);
     }
 
     free(xlinked_list);

@@ -40,7 +40,7 @@ XLinkedListIterator xlinked_list_iterator(const XLinkedList *xlinked_list) {
     return iterator;
 }
 
-void * xlinked_list_at(const XLinkedList *xlinked_list, const unsigned index) {
+void *xlinked_list_at(const XLinkedList *xlinked_list, const unsigned index) {
     if (index >= xlinked_list->length) {
         printf("Index out of bounds\n");
         exit(1);

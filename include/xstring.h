@@ -27,7 +27,7 @@ XString *xstring_to_upper(const XString *xstring);
 
 XString *xstring_to_lower(const XString *xstring);
 
-unsigned xstring_find_first_index_of(const XString *xstring, const char *substring);
+int xstring_find_first_index_of(const XString *xstring, const char *substring);
 
 bool xstring_equal(const XString *xstring, const XString *other);
 

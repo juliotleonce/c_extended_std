@@ -19,6 +19,7 @@ add_library(extended_std SHARED
 target_include_directories(extended_std PUBLIC .)
 
 add_executable(test_custom_std test/test.c
+        test/xstring_test.c
         test/xhashmap_test.c
         test/xhashset_test.c
         test/xarray_test.c

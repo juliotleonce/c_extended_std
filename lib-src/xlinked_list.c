@@ -4,8 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "include/xmemctl.h"
+
 XLinkedList *xlinked_list_new(const size_t value_type_size) {
-    XLinkedList *xlinked_list = calloc(1, sizeof(XLinkedList));
+    XLinkedList *xlinked_list = xmem_alloc(sizeof(XLinkedList));
 
     xlinked_list->head = NULL;
     xlinked_list->tail = NULL;
@@ -16,8 +18,8 @@ XLinkedList *xlinked_list_new(const size_t value_type_size) {
 }
 
 void xlinked_list_push(XLinkedList *xlinked_list, const void *value) {
-    XLinkedListNode *new_node = malloc(sizeof(XLinkedListNode));
-    new_node->value = malloc(xlinked_list->value_type_size);
+    XLinkedListNode *new_node = xmem_alloc(sizeof(XLinkedListNode));
+    new_node->value = xmem_alloc(xlinked_list->value_type_size);
     memcpy(new_node->value, value, xlinked_list->value_type_size);
     new_node->next = NULL;
 
@@ -62,17 +64,17 @@ void xlinked_list_iterator_next(XLinkedListIterator *iterator) {
     iterator->index++;
 }
 
-void xlinked_list_free(XLinkedList *xlinked_list) {
+void xlinked_list_free(const XLinkedList *xlinked_list) {
     XLinkedListIterator iterator = xlinked_list_iterator(xlinked_list);
 
     while (iterator.current != NULL) {
-        free(iterator.current->value);
-        XLinkedListNode *node_to_free = iterator.current;
+        xmem_free(iterator.current->value);
+        const XLinkedListNode *node_to_free = iterator.current;
         iterator.next_fn(&iterator);
-        free(node_to_free);
+        xmem_free(node_to_free);
     }
 
-    free(xlinked_list);
+    xmem_free(xlinked_list);
 }
 
 

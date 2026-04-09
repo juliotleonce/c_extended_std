@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "include/xmemctl.h"
+
 static float xhashmap_load_factor(const XHashMap *xhashmap);
 static unsigned xhashmap_hash_key(unsigned capacity, const char *key);
 static void xhashmap_resize(XHashMap *xhashmap);
@@ -14,14 +16,14 @@ static void xhashmap_entry_update(XHashMapEntry *entry, const char *key, const v
 static void xhashmap_entry_reset(XHashMapEntry *entry);
 
 XHashMap *xhashmap_new(const size_t type_size) {
-    XHashMap *xhashmap = calloc(1, sizeof(XHashMap));
+    XHashMap *xhashmap = xmem_alloc(sizeof(XHashMap));
 
     if (xhashmap == NULL) {
         printf("Can't allocate memory for XHashMap\n");
         exit(1);
     }
 
-    xhashmap->entries = calloc(INITIAL_CAPACITY, sizeof(XHashMapEntry));
+    xhashmap->entries = xmem_alloc(INITIAL_CAPACITY * sizeof(XHashMapEntry));
     xhashmap->capacity = INITIAL_CAPACITY;
     xhashmap->items_account = 0;
     xhashmap->type_size = type_size;
@@ -61,7 +63,7 @@ void xhashmap_put(XHashMap *xhashmap, const char *key, const void *value) {
         index = (index + 1) % xhashmap->capacity;
     }
 
-    free(entry_to_insert);
+    xmem_free(entry_to_insert);
 }
 
 XArray *xhashmap_keys(const XHashMap* xhashmap){
@@ -134,14 +136,14 @@ void *xhashmap_get(const XHashMap *xhashmap, const char *key) {
     }
 }
 
-void xhashmap_free(XHashMap *xhashmap) {
+void xhashmap_free(const XHashMap *xhashmap) {
     for (unsigned i = 0; i < xhashmap->capacity; ++i) {
         if (xhashmap->entries[i].is_taken) {
             xhashmap_entry_reset(&xhashmap->entries[i]);
         }
     }
-    free(xhashmap->entries);
-    free(xhashmap);
+    xmem_free(xhashmap->entries);
+    xmem_free(xhashmap);
 }
 
 /**
@@ -164,11 +166,11 @@ static unsigned xhashmap_hash_key(const unsigned capacity, const char *key) {
 
 static void xhashmap_resize(XHashMap *xhashmap) {
     const unsigned old_capacity = xhashmap->capacity;
-    XHashMapEntry *old_entries = xhashmap->entries;
+    const XHashMapEntry *old_entries = xhashmap->entries;
 
     xhashmap->capacity *= 2;
     xhashmap->items_account = 0;
-    xhashmap->entries = calloc(xhashmap->capacity, sizeof(XHashMapEntry));
+    xhashmap->entries = xmem_alloc(xhashmap->capacity * sizeof(XHashMapEntry));
 
     for (unsigned i = 0; i < old_capacity; ++i) {
         if (old_entries[i].is_taken) {
@@ -176,7 +178,7 @@ static void xhashmap_resize(XHashMap *xhashmap) {
         }
     }
 
-    free(old_entries);
+    xmem_free(old_entries);
 }
 
 static void xhashmap_entry_copy(const XHashMapEntry *entry_to_copy, XHashMapEntry *entry_dest, const size_t value_type_size) {
@@ -195,11 +197,11 @@ static void xhashmap_entry_swap(XHashMapEntry *entry_a, XHashMapEntry *entry_b, 
     xhashmap_entry_copy(temp, entry_b, value_type_size);
 
     xhashmap_entry_reset(temp);
-    free(temp);
+    xmem_free(temp);
 }
 
 static XHashMapEntry *xhashmap_entry_new(const char *key, const void *value, const size_t value_type_size) {
-    XHashMapEntry *entry = calloc(1, sizeof(XHashMapEntry));
+    XHashMapEntry *entry = xmem_alloc(sizeof(XHashMapEntry));
     if (entry == NULL) {
         printf("Can't allocate memory for XHashMapEntry\n");
         exit(1);
@@ -211,8 +213,8 @@ static XHashMapEntry *xhashmap_entry_new(const char *key, const void *value, con
 }
 
 static void xhashmap_entry_update(XHashMapEntry *entry, const char *key, const void *value,const size_t value_type_size) {
-    entry->key = calloc(1, strlen(key) + 1);
-    entry->value = calloc(1, value_type_size);
+    entry->key = xmem_alloc(strlen(key) + 1);
+    entry->value = xmem_alloc(value_type_size);
     entry->is_taken = true;
 
     memcpy(entry->key, key, strlen(key) + 1);
@@ -231,12 +233,12 @@ static void xhashmap_entry_reset(XHashMapEntry *entry) {
     entry->is_taken = false;
 
     if (entry->key != NULL) {
-        free(entry->key);
+        xmem_free(entry->key);
         entry->key = NULL;
     }
 
     if (entry->value != NULL) {
-        free(entry->value);
+        xmem_free(entry->value);
         entry->value = NULL;
     }
 }

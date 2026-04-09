@@ -52,6 +52,6 @@ unsigned xhashset_default_hash_fn(unsigned capacity, const void *element, size_t
 
 bool xhashset_default_equal_fn(const void *a, const void *b, size_t type_size);
 
-void xhashset_free(XHashSet *xhashset);
+void xhashset_free(const XHashSet *xhashset);
 
 #endif

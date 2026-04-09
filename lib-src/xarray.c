@@ -4,13 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "include/xmemctl.h"
+
 static void xarray_resize(XArray *xarray, unsigned new_length);
 
 XArray *xarray_new(const size_t type_size) {
-    XArray *xarray = malloc(sizeof(XArray));
+    XArray *xarray = xmem_alloc(sizeof(XArray));
     xarray->length = 0;
     xarray->type_size = type_size;
-    xarray->c_tab = malloc(type_size);
+    xarray->c_tab = xmem_alloc(type_size);
     return xarray;
 }
 
@@ -40,23 +42,23 @@ void *xarray_at(XArray *xarray, const unsigned index) {
 XArray *xarray_copy(const XArray *xarray) {
     XArray *copy = xarray_new(xarray->type_size);
     copy->length = xarray->length;
-    copy->c_tab = malloc(xarray->length * xarray->type_size);
+    copy->c_tab = xmem_alloc(xarray->length * xarray->type_size);
     memcpy(copy->c_tab, xarray->c_tab, xarray->length * xarray->type_size);
     return copy;
 }
 
 XArray *xarray_from_tab(const void *tab, const unsigned length, const size_t type_size) {
-    XArray *xarray = malloc(sizeof(XArray));
+    XArray *xarray = xmem_alloc(sizeof(XArray));
     xarray->length = length;
     xarray->type_size = type_size;
-    xarray->c_tab = malloc(length * type_size);
+    xarray->c_tab = xmem_alloc(length * type_size);
     memcpy(xarray->c_tab, tab, length * type_size);
     return xarray;
 }
 
 void xarray_free(XArray *xarray) {
-    free(xarray->c_tab);
-    free(xarray);
+    xmem_free(xarray->c_tab);
+    xmem_free(xarray);
 }
 
 /**
@@ -65,7 +67,7 @@ void xarray_free(XArray *xarray) {
  */
 
 void xarray_resize(XArray *xarray, const unsigned new_length) {
-    void *temp = realloc(xarray->c_tab, new_length * xarray->type_size);
+    void *temp = xmem_realloc(xarray->c_tab, new_length * xarray->type_size);
     if (temp == NULL) {
         printf("Can't push new element to array\n");
         xarray_free(xarray);

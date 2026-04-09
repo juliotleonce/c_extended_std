@@ -38,6 +38,6 @@ void *xlinked_list_at(const XLinkedList *xlinked_list, unsigned index);
 
 void xlinked_list_iterator_next(XLinkedListIterator *iterator);
 
-void xlinked_list_free(XLinkedList *xlinked_list);
+void xlinked_list_free(const XLinkedList *xlinked_list);
 
 #endif //EXTENDED_STD_XLINKED_LIST_H

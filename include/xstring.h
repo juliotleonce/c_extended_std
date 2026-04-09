@@ -35,6 +35,6 @@ bool xstring_equal_c_str(const XString *xstring, const char *other);
 
 bool xstring_contains(const XString *xstring, const char *substring);
 
-void xstring_free(XString *xstring);
+void xstring_free(const XString *xstring);
 
 #endif //EXTENDED_STD_XSTRING_H

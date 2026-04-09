@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "test_utils.h"
+#include "include/xmemctl.h"
 
 static void test_basic_new_and_push(void);
 static void test_multiple_insertions(void);
@@ -22,7 +23,6 @@ void run_all_xarray_tests(void) {
     print_separator();
 
     printf("\n\033[1;34mRunning tests...\033[0m\n");
-
     // Run all tests
     test_basic_new_and_push();
     print_separator();
@@ -48,9 +48,9 @@ void run_all_xarray_tests(void) {
     test_xarray_copy();
     print_separator();
 
+
     test_xarray_from_tab();
     print_separator();
-
 
     printf("\n");
     printf("\033[0;32m========================================\033[0m\n");

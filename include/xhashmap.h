@@ -33,7 +33,7 @@ void xhashmap_remove(XHashMap *xhashmap, const char *key);
 
 void *xhashmap_get(const XHashMap *xhashmap, const char *key);
 
-void xhashmap_free(XHashMap *xhashmap);
+void xhashmap_free(const XHashMap *xhashmap);
 
 char **keys_to_array(const XHashMap *xhashmap, unsigned *out_count);
 

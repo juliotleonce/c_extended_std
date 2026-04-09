@@ -4,11 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "include/xmemctl.h"
+
 XString *xstring_new(const char *str) {
-    XString *xstring = malloc(sizeof(XString));
+    XString *xstring = xmem_alloc(sizeof(XString));
 
     xstring->length = strlen(str);
-    xstring->c_str = malloc(xstring->length + 1);
+    xstring->c_str = xmem_alloc(xstring->length + 1);
 
     strcpy(xstring->c_str, str);
 
@@ -24,11 +26,11 @@ XString *xstring_concat(const XString *xstring, const XString *other) {
 }
 
 XString *xstring_concat_c_str(const XString *xstring, const char *other) {
-    XString *concat = malloc(sizeof(XString));
+    XString *concat = xmem_alloc(sizeof(XString));
     const unsigned new_length = xstring->length + strlen(other);
 
     concat->length = new_length;
-    concat->c_str = malloc(new_length + 1);
+    concat->c_str = xmem_alloc(new_length + 1);
 
     strcpy(concat->c_str, xstring->c_str);
     strcat(concat->c_str, other);
@@ -37,10 +39,10 @@ XString *xstring_concat_c_str(const XString *xstring, const char *other) {
 }
 
 XString *xstring_substring(const XString *xstring, const unsigned start, const unsigned end) {
-    XString *substring = malloc(sizeof(XString));
+    XString *substring = xmem_alloc(sizeof(XString));
 
     substring->length = end - start;
-    substring->c_str = malloc(substring->length + 1);
+    substring->c_str = xmem_alloc(substring->length + 1);
     strncpy(substring->c_str, xstring->c_str + start, substring->length);
     substring->c_str[substring->length] = '\0';
 
@@ -113,9 +115,9 @@ bool xstring_contains(const XString *xstring, const char *substring) {
     return xstring_find_first_index_of(xstring, substring) != -1;
 }
 
-void xstring_free(XString *xstring) {
-    free(xstring->c_str);
-    free(xstring);
+void xstring_free(const XString *xstring) {
+    xmem_free(xstring->c_str);
+    xmem_free(xstring);
 }
 
 

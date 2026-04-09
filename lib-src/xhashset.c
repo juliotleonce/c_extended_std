@@ -4,20 +4,22 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "include/xmemctl.h"
+
 static float xhashset_load_factor(const XHashSet *xhashset);
 static void xhashset_resize(XHashSet *xhashset);
 static void xhashset_item_reset(XHashSetItem *item);
 static bool xhashset_is_mergeable(const XHashSet *xhashset_a, const XHashSet *xhashset_b);
 
 XHashSet *xhashset_new(const size_t type_size, const XHashSetEqualFn equal_fn, const XHashSetHashFn hash_fn){
-    XHashSet *xhashset = calloc(1, sizeof(XHashSet));
+    XHashSet *xhashset = xmem_alloc(sizeof(XHashSet));
 
     if (xhashset == NULL){
         printf("Can't allocate memory for XHashSet\n");
         exit(1);
     }
 
-    xhashset->items = calloc(INITIAL_CAPACITY, sizeof(XHashSetItem));
+    xhashset->items = xmem_alloc(INITIAL_CAPACITY * sizeof(XHashSetItem));
     xhashset->capacity = INITIAL_CAPACITY;
     xhashset->items_account = 0;
     xhashset->type_size = type_size;
@@ -33,7 +35,7 @@ void xhashset_add(XHashSet *xhashset, const void *item_value){
     }
 
     unsigned index = xhashset->hash_fn(xhashset->capacity, item_value, xhashset->type_size);
-    void *current_value = malloc(xhashset->type_size);
+    void *current_value = xmem_alloc(xhashset->type_size);
     unsigned psl = 0;
 
     memcpy(current_value, item_value, xhashset->type_size);
@@ -50,7 +52,7 @@ void xhashset_add(XHashSet *xhashset, const void *item_value){
         }
 
         if (xhashset->equal_fn(existing_item->value, item_value, xhashset->type_size)) {
-            free(current_value);
+            xmem_free(current_value);
             break;
         }
 
@@ -105,7 +107,7 @@ void xhashset_remove(XHashSet *xhashset, const void *item_value) {
 
                 if (!neighbour->is_taken || neighbour->psl == 0) break;
 
-                item->value = calloc(xhashset->type_size, sizeof(char));
+                item->value = xmem_alloc(xhashset->type_size * sizeof(char));
                 memcpy(item->value, neighbour->value, xhashset->type_size);
                 item->psl = neighbour->psl - 1;
                 item->is_taken = true;
@@ -209,8 +211,8 @@ void xhashset_clear(XHashSet *xhashset) {
         }
     }
 
-    free(xhashset->items);
-    xhashset->items = calloc(INITIAL_CAPACITY, sizeof(XHashSetItem));
+    xmem_free(xhashset->items);
+    xhashset->items = xmem_alloc(INITIAL_CAPACITY * sizeof(XHashSetItem));
     xhashset->capacity = INITIAL_CAPACITY;
     xhashset->items_account = 0;
 }
@@ -220,7 +222,7 @@ unsigned xhashset_default_hash_fn(const unsigned capacity, const void *element, 
     unsigned i = 0;
     const char *element_char = (char*) element;
     while (i < type_size) {
-        h = (h << 5) + h ^ (unsigned char)*(element_char+i);
+        h = (h << 5) + h ^ (unsigned char) *(element_char+i);
         i++;
     }
     return h % capacity;
@@ -230,14 +232,14 @@ bool xhashset_default_equal_fn(const void *a, const void *b, const size_t type_s
     return memcmp(a, b, type_size) == 0;
 }
 
-void xhashset_free(XHashSet *xhashset){
+void xhashset_free(const XHashSet *xhashset){
     for (unsigned i = 0; i < xhashset->capacity; ++i) {
         if (xhashset->items[i].is_taken) {
-            free(xhashset->items[i].value);
+            xmem_free(xhashset->items[i].value);
         }
     }
-    free(xhashset->items);
-    free(xhashset);
+    xmem_free(xhashset->items);
+    xmem_free(xhashset);
 }
 
 /**
@@ -251,11 +253,11 @@ float xhashset_load_factor(const XHashSet *xhashset) {
 
 void xhashset_resize(XHashSet *xhashset) {
     const unsigned old_capacity = xhashset->capacity;
-    XHashSetItem *old_items = xhashset->items;
+    const XHashSetItem *old_items = xhashset->items;
 
     xhashset->capacity *= 2;
     xhashset->items_account = 0;
-    xhashset->items = calloc(xhashset->capacity, sizeof(XHashSetItem));
+    xhashset->items = xmem_alloc(xhashset->capacity * sizeof(XHashSetItem));
 
     for (unsigned i = 0; i < old_capacity; ++i) {
         if (old_items[i].is_taken) {
@@ -263,14 +265,14 @@ void xhashset_resize(XHashSet *xhashset) {
         }
     }
 
-    free(old_items);
+    xmem_free(old_items);
 }
 
 void xhashset_item_reset(XHashSetItem *item) {
     item->psl = 0;
     item->is_taken = false;
     if (item->value != NULL) {
-        free(item->value);
+        xmem_free(item->value);
         item->value = NULL;
     }
 }

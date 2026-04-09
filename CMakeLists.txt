@@ -14,6 +14,8 @@ add_library(extended_std SHARED
         lib-src/xstring.c
         include/xlinked_list.h
         lib-src/xlinked_list.c
+        include/xmemctl.h
+        lib-src/xmemctl.c
 )
 
 target_include_directories(extended_std PUBLIC .)
@@ -24,6 +26,7 @@ add_executable(test_custom_std test/test.c
         test/xhashset_test.c
         test/xarray_test.c
         test/xlinked_list_test.c
+        test/xmemctl_test.c
         test/test_utils.h
         test/test_utils.c)
 

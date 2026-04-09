@@ -14,7 +14,7 @@ typedef struct XMemStackNode {
 
 typedef struct XMemStack {
     XMemStackNode *top;
-    uintptr_t current_checkpoint_ptr;
+    uintptr_t current_checkpoint_addr;
 } XMemStack;
 
 void *xmem_alloc(size_t size);

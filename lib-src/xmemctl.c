@@ -51,17 +51,17 @@ void *xmem_realloc(void *ptr, const size_t size) {
 
 void xmem_checkpoint() {
     uintptr_t *checkpoint_ptr = calloc(1, sizeof(uintptr_t));
-    *checkpoint_ptr = global_mem_stack.current_checkpoint_ptr;
-    global_mem_stack.current_checkpoint_ptr = (uintptr_t) checkpoint_ptr;
+    *checkpoint_ptr = global_mem_stack.current_checkpoint_addr;
+    global_mem_stack.current_checkpoint_addr = (uintptr_t) checkpoint_ptr;
     xmem_stack_add_ptr(checkpoint_ptr);
 }
 
 void xmem_rollback() {
-    const uintptr_t *checkpoint_ptr = (uintptr_t *) global_mem_stack.current_checkpoint_ptr;
+    const uintptr_t *checkpoint_ptr = (uintptr_t *) global_mem_stack.current_checkpoint_addr;
     const uintptr_t checkpoint_ptr_addr = (uintptr_t) checkpoint_ptr;
     XMemStackNode *node = global_mem_stack.top;
 
-    global_mem_stack.current_checkpoint_ptr = *checkpoint_ptr;
+    global_mem_stack.current_checkpoint_addr = *checkpoint_ptr;
 
     while (node != NULL) {
         const uintptr_t ptr_addr = (uintptr_t) node->ptr;
@@ -90,7 +90,7 @@ void xmem_reset(void) {
     }
 
     global_mem_stack.top = NULL;
-    global_mem_stack.current_checkpoint_ptr = 0;
+    global_mem_stack.current_checkpoint_addr = 0;
 }
 
 

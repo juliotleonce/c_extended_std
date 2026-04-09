@@ -21,12 +21,19 @@ void *xmem_alloc(const size_t size) {
 
 void xmem_free(const void *ptr) {
     XMemStackNode *node = global_mem_stack.top;
+    XMemStackNode *prev_node = NULL;
+
     while (node != NULL) {
         if (node->ptr == ptr) {
+            if (prev_node != NULL) prev_node->next = node->next;
+            else global_mem_stack.top = node->next;
+
             free(node->ptr);
-            node->ptr = NULL;
+            free(node);
             return;
         }
+
+        prev_node = node;
         node = node->next;
     }
 }
@@ -51,6 +58,7 @@ void xmem_checkpoint() {
 
 void xmem_rollback() {
     const uintptr_t *checkpoint_ptr = (uintptr_t *) global_mem_stack.current_checkpoint_ptr;
+    const uintptr_t checkpoint_ptr_addr = (uintptr_t) checkpoint_ptr;
     XMemStackNode *node = global_mem_stack.top;
 
     global_mem_stack.current_checkpoint_ptr = *checkpoint_ptr;
@@ -59,11 +67,11 @@ void xmem_rollback() {
         const uintptr_t ptr_addr = (uintptr_t) node->ptr;
         XMemStackNode *next_node = node->next;
 
-        if (node->ptr != NULL) free(node->ptr);
+        free(node->ptr);
         free(node);
 
         node = next_node;
-        if (ptr_addr == (uintptr_t) checkpoint_ptr) break;
+        if (ptr_addr == checkpoint_ptr_addr) break;
     }
 
     global_mem_stack.top = node;
@@ -75,7 +83,7 @@ void xmem_reset(void) {
     while (node != NULL) {
         XMemStackNode *next_node = node->next;
 
-        if (node->ptr != NULL) free(node->ptr);
+        free(node->ptr);
         free(node);
 
         node = next_node;

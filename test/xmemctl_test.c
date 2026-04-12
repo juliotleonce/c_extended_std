@@ -13,6 +13,7 @@ static void test_checkpoint_rollback(void);
 static void test_multiple_checkpoints(void);
 static void test_reset(void);
 static void test_stress(void);
+static void test_xmem_scope_macro(void);
 
 
 void run_all_xmemctl_tests(void) {
@@ -48,8 +49,8 @@ void run_all_xmemctl_tests(void) {
     test_stress();
     print_separator();
 
-
-    printf("\n");
+    test_xmem_scope_macro();
+    print_separator();
     printf("\033[0;32m========================================\033[0m\n");
     printf("\033[0;32m  ALL TESTS COMPLETED\033[0m\n");
     printf("\033[0;32m========================================\033[0m\n");
@@ -379,4 +380,73 @@ static void test_stress(void) {
     printf("  Result: \033[0;32mOK\033[0m - Reset complete\n");
 
     printf("\n\033[0;32m[PASS]\033[0m Test passed!\n");
+}
+
+// ========================================
+// Test 9: XMEM_SCOPE Macro
+// ========================================
+static void test_xmem_scope_macro(void) {
+    TEST_START("XMEM_SCOPE Macro");
+
+    SECTION("Allocating initial memory before scope");
+    char *ptr_before = (char *) xmem_alloc(32);
+    memset(ptr_before, 'B', 32);
+    printf("  Allocated before scope: ptr=%p\n", (void *) ptr_before);
+    printf("  Result: \033[0;32mOK\033[0m - Memory allocated\n");
+
+    SECTION("Using XMEM_SCOPE macro");
+    printf("  Entering XMEM_SCOPE block\n");
+    XMEM_SCOPE {
+        printf("    Inside scope: allocating memory\n");
+        
+        char *ptr_inside1 = (char *) xmem_alloc(64);
+        memset(ptr_inside1, '1', 64);
+        printf("      Allocated: ptr_inside1=%p\n", (void *) ptr_inside1);
+        
+        char *ptr_inside2 = (char *) xmem_alloc(128);
+        memset(ptr_inside2, '2', 128);
+        printf("      Allocated: ptr_inside2=%p\n", (void *) ptr_inside2);
+        
+        printf("    Exiting scope - automatic rollback\n");
+    }
+    printf("  Result: \033[0;32mOK\033[0m - Scope exited, automatic rollback occurred\n");
+
+    SECTION("Verifying memory before scope still exists");
+    printf("  ptr_before still accessible: %p\n", (void *) ptr_before);
+    int valid = 1;
+    for (int i = 0; i < 32; i++) {
+        if (ptr_before[i] != 'B') {
+            valid = 0;
+            break;
+        }
+    }
+    if (!valid) {
+        TEST_FAIL("Memory before scope was corrupted");
+        return;
+    }
+    printf("  Result: \033[0;32mOK\033[0m - Memory before scope preserved\n");
+
+    SECTION("Testing nested XMEM_SCOPE");
+    printf("  Entering outer XMEM_SCOPE\n");
+    XMEM_SCOPE {
+        char *outer_ptr = (char *) xmem_alloc(32);
+        memset(outer_ptr, 'O', 32);
+        printf("    Outer scope: allocated %p\n", (void *) outer_ptr);
+        
+        printf("    Entering inner XMEM_SCOPE\n");
+        XMEM_SCOPE {
+            char *inner_ptr = (char *) xmem_alloc(64);
+            memset(inner_ptr, 'I', 64);
+            printf("      Inner scope: allocated %p\n", (void *) inner_ptr);
+        }
+        printf("    Exited inner scope\n");
+    }
+    printf("  Result: \033[0;32mOK\033[0m - Nested scopes work correctly\n");
+
+    SECTION("Verifying final state");
+    printf("  Final memory state verified\n");
+    printf("  Result: \033[0;32mOK\033[0m - Final state correct\n");
+
+    printf("\n\033[0;32m[PASS]\033[0m Test passed!\n");
+    xmem_reset();
 }

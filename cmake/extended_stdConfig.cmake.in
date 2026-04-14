@@ -1,0 +1,7 @@
+@PACKAGE_INIT@
+
+set(extended_std_INCLUDE_DIRS "${PACKAGE_PREFIX_DIR}/include")
+set(extended_std_LIBRARY_DIRS "${PACKAGE_PREFIX_DIR}/lib")
+set(extended_std_LIBRARIES extended_std)
+
+check_required_components(extended_std)

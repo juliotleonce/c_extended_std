@@ -79,6 +79,42 @@ XString *xstring_to_lower(const XString *xstring) {
     return lower;
 }
 
+XArray *xstring_split(const XString *xstring, const char *separator) {
+    XArray *split = xarray_new(sizeof(XString));
+    unsigned separator_it = 0;
+    unsigned xstring_it = 0;
+    unsigned split_it = 0;
+    const size_t separator_length = strlen(separator);
+
+    while (xstring_it < xstring->length) {
+        const char separator_char = separator[separator_it];
+        const char xstring_char = xstring->c_str[xstring_it];
+
+        if (separator_char - xstring_char == 0) {
+            if (separator_it == separator_length - 1) {
+                xarray_push(split, xstring_substring(xstring, split_it, xstring_it - separator_length + 1));
+                split_it = xstring_it + separator_length;
+                xstring_it = split_it;
+                separator_it = 0;
+                continue;
+            }
+
+            separator_it++;
+            xstring_it++;
+            continue;
+        }
+
+        if (separator_it == 0) xstring_it++;
+        else separator_it = 0;
+
+        if (xstring_it == xstring->length) {
+            xarray_push(split, xstring_substring(xstring, split_it, xstring_it));
+        }
+    }
+
+    return split;
+}
+
 int xstring_find_first_index_of(const XString *xstring, const char *substring) {
     unsigned sub_string_it = 0;
     unsigned xstring_it = 0;

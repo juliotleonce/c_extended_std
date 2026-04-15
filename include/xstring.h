@@ -6,6 +6,8 @@
 #define EXTENDED_STD_XSTRING_H
 #include <stdbool.h>
 
+#include "xarray.h"
+
 typedef struct {
     unsigned length;
     char *c_str;
@@ -26,6 +28,8 @@ XString *xstring_replace(const XString *xstring, const char *old_str, const char
 XString *xstring_to_upper(const XString *xstring);
 
 XString *xstring_to_lower(const XString *xstring);
+
+XArray *xstring_split(const XString *xstring, const char *separator);
 
 int xstring_find_first_index_of(const XString *xstring, const char *substring);
 

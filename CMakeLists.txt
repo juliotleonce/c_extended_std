@@ -3,12 +3,10 @@ project(xstdlib LANGUAGES C VERSION 1.0.0)
 
 set(CMAKE_C_STANDARD 11)
 
-# Set installation prefix to ~/.local by default
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/.local" CACHE PATH "Installation prefix" FORCE)
 endif()
 
-# Build as shared library by default
 set(BUILD_SHARED_LIBS ON)
 
 add_library(xstdlib SHARED
@@ -28,42 +26,32 @@ add_library(xstdlib SHARED
 )
 
 target_include_directories(xstdlib PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
 )
 
-# Set version info for the library
-set_target_properties(xstdlib PROPERTIES
-    VERSION "1.0.0"
-    SOVERSION 1
-)
-
-# Install the library
 install(TARGETS xstdlib
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION lib
+        EXPORT xstdlibTargets
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include
 )
 
-# Install headers
-install(DIRECTORY include/
-    DESTINATION include
-    FILES_MATCHING PATTERN "*.h"
+install(DIRECTORY include/ DESTINATION include)
+
+install(EXPORT xstdlibTargets
+        FILE xstdlibTargets.cmake
+        NAMESPACE xstdlib::
+        DESTINATION lib/cmake/xstdlib
 )
 
-# Create CMake config file for find_package
-include(CMakePackageConfigHelpers)
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/xstdlibConfig.cmake"
+        "include(\${CMAKE_CURRENT_LIST_DIR}/xstdlibTargets.cmake)\n")
 
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/xstdlibConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/xstdlibConfig.cmake
-    INSTALL_DESTINATION lib/cmake/xstdlib
-)
-
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/xstdlibConfig.cmake
-    DESTINATION lib/cmake/xstdlib
-)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/xstdlibConfig.cmake"
+        DESTINATION lib/cmake/xstdlib)
 
 add_executable(test_xstdlib test/test.c
         test/xstring_test.c

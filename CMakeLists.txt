@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.2)
-project(extended_std LANGUAGES C VERSION 1.0.0)
+project(xstdlib LANGUAGES C VERSION 1.0.0)
 
 set(CMAKE_C_STANDARD 11)
 
@@ -11,7 +11,7 @@ endif()
 # Build as shared library by default
 set(BUILD_SHARED_LIBS ON)
 
-add_library(extended_std SHARED
+add_library(xstdlib SHARED
         lib-src/xarray.c
         include/xarray.h
         lib-src/xhashmap.c
@@ -24,21 +24,22 @@ add_library(extended_std SHARED
         lib-src/xlinked_list.c
         include/xmemctl.h
         lib-src/xmemctl.c
+        include/xstdlib.h
 )
 
-target_include_directories(extended_std PUBLIC 
+target_include_directories(xstdlib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # Set version info for the library
-set_target_properties(extended_std PROPERTIES
+set_target_properties(xstdlib PROPERTIES
     VERSION "1.0.0"
     SOVERSION 1
 )
 
 # Install the library
-install(TARGETS extended_std
+install(TARGETS xstdlib
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION lib
@@ -54,17 +55,17 @@ install(DIRECTORY include/
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/extended_stdConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/extended_stdConfig.cmake
-    INSTALL_DESTINATION lib/cmake/extended_std
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/xstdlibConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/xstdlibConfig.cmake
+    INSTALL_DESTINATION lib/cmake/xstdlib
 )
 
 install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/extended_stdConfig.cmake
-    DESTINATION lib/cmake/extended_std
+    ${CMAKE_CURRENT_BINARY_DIR}/xstdlibConfig.cmake
+    DESTINATION lib/cmake/xstdlib
 )
 
-add_executable(test_custom_std test/test.c
+add_executable(test_xstdlib test/test.c
         test/xstring_test.c
         test/xhashmap_test.c
         test/xhashset_test.c
@@ -72,6 +73,7 @@ add_executable(test_custom_std test/test.c
         test/xlinked_list_test.c
         test/xmemctl_test.c
         test/test_utils.h
-        test/test_utils.c)
+        test/test_utils.c
+        include/xstdlib.h)
 
-target_link_libraries(test_custom_std PRIVATE extended_std)
+target_link_libraries(test_xstdlib PRIVATE xstdlib)

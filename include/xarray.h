@@ -20,11 +20,13 @@ void xarray_push(XArray *xarray, const void *data);
 
 void xarray_pop(XArray *xarray, void *output);
 
-void *xarray_at(XArray *xarray, unsigned index);
+void *xarray_at(const XArray *xarray, unsigned index);
 
 XArray *xarray_copy(const XArray *xarray);
 
 XArray *xarray_from_tab(const void *tab, unsigned length, size_t type_size);
+
+XArray *xarray_slice(const XArray *xarray, unsigned start, unsigned end);
 
 void xarray_free(XArray *xarray);
 

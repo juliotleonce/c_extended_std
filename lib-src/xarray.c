@@ -56,6 +56,14 @@ XArray *xarray_from_tab(const void *tab, const unsigned length, const size_t typ
     return xarray;
 }
 
+XArray *xarray_slice(const XArray *xarray, const unsigned start, const unsigned end) {
+    XArray *slice = xarray_new(xarray->type_size);
+    slice->length = end - start;
+    slice->c_tab = xmem_alloc(slice->length * xarray->type_size);
+    memcpy(slice->c_tab, xarray->c_tab + start * xarray->type_size, slice->length * xarray->type_size);
+    return slice;
+}
+
 void xarray_free(XArray *xarray) {
     xmem_free(xarray->c_tab);
     xmem_free(xarray);

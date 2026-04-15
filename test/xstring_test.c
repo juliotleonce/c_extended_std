@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "xmemctl.h"
+
 void test_xstring_new_free() {
     TEST_START("xstring_new_free");
     
@@ -215,6 +217,42 @@ void test_xstring_predicates() {
     TEST_PASS();
 }
 
+void test_xstring_split() {
+    TEST_START("xstring_split");
+
+    SECTION("Split with space");
+    XMEM_SCOPE {
+        XString *s1 = xstring_new("Hello World Junie");
+        XArray *res1 = xstring_split(s1, " ");
+        // Doit contenir "Hello", "World", "Junie"
+        // Note: L'implémentation actuelle pourrait échouer ici si elle ne gère pas le dernier segment.
+        assert(res1->length == 3);
+        assert(xstring_equal_c_str(xarray_at(res1, 0), "Hello"));
+        assert(xstring_equal_c_str(xarray_at(res1, 1), "World"));
+        assert(xstring_equal_c_str(xarray_at(res1, 2), "Junie"));
+    }
+
+    SECTION("Split with comma");
+    XMEM_SCOPE {
+        XString *s2 = xstring_new("apple,banana,cherry");
+        XArray *res2 = xstring_split(s2, ",");
+        assert(res2->length == 3);
+        assert(xstring_equal_c_str(xarray_at(res2, 0), "apple"));
+        assert(xstring_equal_c_str(xarray_at(res2, 1), "banana"));
+        assert(xstring_equal_c_str(xarray_at(res2, 2), "cherry"));
+    }
+
+
+    SECTION("No separator found");
+    XMEM_SCOPE {
+        XString *s3 = xstring_new("nosplit");
+        XArray *res3 = xstring_split(s3, " ");
+        assert(res3->length == 1);
+        assert(xstring_equal_c_str(xarray_at(res3, 0), "nosplit"));
+    }
+    TEST_PASS();
+}
+
 void run_all_xstring_tests() {
     printf("\n>>> RUNNING XSTRING TESTS <<<\n");
     test_xstring_new_free();
@@ -223,6 +261,7 @@ void run_all_xstring_tests() {
     test_xstring_substring();
     test_xstring_find_index();
     test_xstring_replace();
+    test_xstring_split();
     test_xstring_case_conversions();
     test_xstring_predicates();
 }

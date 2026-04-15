@@ -31,6 +31,8 @@ target_include_directories(xstdlib PUBLIC
         $<INSTALL_INTERFACE:include>
 )
 
+install(DIRECTORY include/ DESTINATION include/xstdlib)
+
 install(TARGETS xstdlib
         EXPORT xstdlibTargets
         LIBRARY DESTINATION lib
@@ -38,8 +40,6 @@ install(TARGETS xstdlib
         RUNTIME DESTINATION bin
         INCLUDES DESTINATION include
 )
-
-install(DIRECTORY include/ DESTINATION include)
 
 install(EXPORT xstdlibTargets
         FILE xstdlibTargets.cmake

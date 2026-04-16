@@ -30,9 +30,8 @@ void xarray_pop(XArray *xarray, void *output) {
     xarray_resize(xarray, xarray->length - 1);
 }
 
-void *xarray_at(XArray *xarray, const unsigned index) {
+void *xarray_at(const XArray *xarray, const unsigned index) {
     if (index >= xarray->length) {
-        xarray_free(xarray);
         printf("Index out of bounds\n");
         exit(1);
     }

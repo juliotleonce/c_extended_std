@@ -23,6 +23,7 @@ add_library(xstdlib SHARED
         include/xmemctl.h
         lib-src/xmemctl.c
         include/xstdlib.h
+        lib-src/xio_utils.c
 )
 
 target_include_directories(xstdlib PUBLIC
@@ -62,6 +63,7 @@ add_executable(test_xstdlib test/test.c
         test/xmemctl_test.c
         test/test_utils.h
         test/test_utils.c
-        include/xstdlib.h)
+        include/xstdlib.h
+        include/xio_utils.h)
 
 target_link_libraries(test_xstdlib PRIVATE xstdlib)

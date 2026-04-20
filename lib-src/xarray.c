@@ -33,7 +33,7 @@ void xarray_pop(XArray *xarray, void *output) {
 void *xarray_at(const XArray *xarray, const unsigned index) {
     if (index >= xarray->length) {
         printf("Index out of bounds\n");
-        exit(1);
+        return NULL;
     }
     return xarray->c_tab + index * xarray->type_size;
 }

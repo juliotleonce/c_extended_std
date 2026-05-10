@@ -22,6 +22,7 @@ void xarray_push(XArray *xarray, const void *data) {
         const size_t new_capacity = xarray->capacity + (xarray->capacity >> 1);
         xarray_resize(xarray, new_capacity);
     }
+
     xarray->length++;
     memcpy(xarray->c_tab + (xarray->length - 1) * xarray->type_size, data, xarray->type_size);
 }

@@ -7,9 +7,11 @@
 #include <stdlib.h>
 
 #define XARRAY_NEW(ElementType) xarray_new(sizeof(ElementType))
+#define XARRAY_INITIAL_CAPACITY 8
 
 typedef struct XArray {
     unsigned length;
+    size_t capacity;
     size_t type_size;
     void *c_tab;
 } XArray;

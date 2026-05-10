@@ -28,6 +28,6 @@ XArray *xarray_from_tab(const void *tab, unsigned length, size_t type_size);
 
 XArray *xarray_slice(const XArray *xarray, unsigned start, unsigned end);
 
-void xarray_free(XArray *xarray);
+void xarray_free(const XArray *xarray);
 
 #endif

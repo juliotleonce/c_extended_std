@@ -63,7 +63,7 @@ XArray *xarray_slice(const XArray *xarray, const unsigned start, const unsigned 
     return slice;
 }
 
-void xarray_free(XArray *xarray) {
+void xarray_free(const XArray *xarray) {
     xmem_free(xarray->c_tab);
     xmem_free(xarray);
 }

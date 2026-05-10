@@ -6,11 +6,15 @@
 
 #include "include/xmemctl.h"
 
+static void xstring_resize(XString *xstring, unsigned new_length);
+
 XString *xstring_new(const char *str) {
     XString *xstring = xmem_alloc(sizeof(XString));
+    const size_t str_length = strlen(str);
 
-    xstring->length = strlen(str);
-    xstring->c_str = xmem_alloc(xstring->length + 1);
+    xstring->length = str_length;
+    xstring->capacity = str_length + (str_length >> 1);
+    xstring->c_str = xmem_alloc(xstring->capacity);
 
     strcpy(xstring->c_str, str);
 
@@ -28,8 +32,8 @@ XString *xstring_concat(XString *xstring, const XString *other) {
 XString *xstring_concat_c_str(XString *xstring, const char *other) {
     const unsigned new_length = xstring->length + strlen(other);
 
+    if (new_length > xstring->capacity) xstring_resize(xstring, new_length);
     xstring->length = new_length;
-    xstring->c_str = xmem_realloc(xstring->c_str, new_length + 1);
     strcat(xstring->c_str, other);
 
     return xstring;
@@ -39,7 +43,8 @@ XString *xstring_substring(const XString *xstring, const unsigned start, const u
     XString *substring = xmem_alloc(sizeof(XString));
 
     substring->length = end - start;
-    substring->c_str = xmem_alloc(substring->length + 1);
+    substring->capacity = substring->length + (substring->length >> 1);
+    substring->c_str = xmem_alloc(substring->capacity);
     strncpy(substring->c_str, xstring->c_str + start, substring->length);
     substring->c_str[substring->length] = '\0';
 
@@ -167,6 +172,13 @@ bool xstring_contains(const XString *xstring, const char *substring) {
 void xstring_free(const XString *xstring) {
     xmem_free(xstring->c_str);
     xmem_free(xstring);
+}
+
+void inline  xstring_resize(XString *xstring, const unsigned new_length) {
+    xstring->length = new_length;
+    while (xstring->capacity < xstring->length)
+        xstring->capacity += xstring->capacity >> 1;
+    xstring->c_str = xmem_realloc(xstring->c_str, xstring->capacity);
 }
 
 

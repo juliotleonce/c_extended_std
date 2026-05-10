@@ -10,6 +10,7 @@
 
 typedef struct {
     unsigned length;
+    size_t capacity;
     char *c_str;
 } XString;
 

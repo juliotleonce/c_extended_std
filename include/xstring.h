@@ -17,17 +17,17 @@ XString *xstring_new(const char *str);
 
 XString *xstring_copy(const XString *xstring);
 
-XString *xstring_concat(const XString *xstring, const XString *other);
+XString *xstring_concat(XString *xstring, const XString *other);
 
-XString *xstring_concat_c_str(const XString *xstring, const char *other);
+XString *xstring_concat_c_str(XString *xstring, const char *other);
 
 XString *xstring_substring(const XString *xstring, unsigned start, unsigned end);
 
-XString *xstring_replace(const XString *xstring, const char *old_str, const char *new_str);
+XString *xstring_replace(XString *xstring, const char *old_str, const char *new_str);
 
-XString *xstring_to_upper(const XString *xstring);
+XString *xstring_to_upper(XString *xstring);
 
-XString *xstring_to_lower(const XString *xstring);
+XString *xstring_to_lower(XString *xstring);
 
 XString *xstring_join(const XArray *xarray, const char *separator);
 
@@ -43,4 +43,4 @@ bool xstring_contains(const XString *xstring, const char *substring);
 
 void xstring_free(const XString *xstring);
 
-#endif //EXTENDED_STD_XSTRING_H
+#endif

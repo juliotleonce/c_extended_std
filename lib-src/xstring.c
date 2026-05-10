@@ -21,21 +21,18 @@ XString *xstring_copy(const XString *xstring) {
     return xstring_new(xstring->c_str);
 }
 
-XString *xstring_concat(const XString *xstring, const XString *other) {
+XString *xstring_concat(XString *xstring, const XString *other) {
     return xstring_concat_c_str(xstring, other->c_str);
 }
 
-XString *xstring_concat_c_str(const XString *xstring, const char *other) {
-    XString *concat = xmem_alloc(sizeof(XString));
+XString *xstring_concat_c_str(XString *xstring, const char *other) {
     const unsigned new_length = xstring->length + strlen(other);
 
-    concat->length = new_length;
-    concat->c_str = xmem_alloc(new_length + 1);
+    xstring->length = new_length;
+    xstring->c_str = xmem_realloc(xstring->c_str, new_length + 1);
+    strcat(xstring->c_str, other);
 
-    strcpy(concat->c_str, xstring->c_str);
-    strcat(concat->c_str, other);
-
-    return concat;
+    return xstring;
 }
 
 XString *xstring_substring(const XString *xstring, const unsigned start, const unsigned end) {
@@ -49,34 +46,41 @@ XString *xstring_substring(const XString *xstring, const unsigned start, const u
     return substring;
 }
 
-XString *xstring_replace(const XString *xstring, const char *old_str, const char *new_str) {
+XString *xstring_replace(XString *xstring, const char *old_str, const char *new_str) {
     const int old_str_index = xstring_find_first_index_of(xstring, old_str);
 
     if (old_str_index != -1) {
         const size_t old_str_length = strlen(old_str);
         const size_t second_part_offset = old_str_index + old_str_length;
-        const XString *first_part = xstring_substring(xstring, 0, old_str_index);
+
+        XString *temp = xstring_substring(xstring, 0, old_str_index);
         const XString *second_part = xstring_substring(xstring, second_part_offset, xstring->length);
-        const XString *repaced_first_part = xstring_concat_c_str(first_part, new_str);
-        XString *repaced_full_part = xstring_concat(repaced_first_part, second_part);
-        return repaced_full_part;
+        xstring_concat_c_str(temp, new_str);
+        xstring_concat(temp, second_part);
+
+        xmem_free(xstring->c_str);
+        xstring->length = temp->length;
+        xstring->c_str = temp->c_str;
+
+        xmem_free(temp);
+        xstring_free(second_part);
+
+        return xstring;
     }
 
-    return xstring_copy(xstring);
+    return xstring;
 }
 
-XString *xstring_to_upper(const XString *xstring) {
-    XString *upper = xstring_copy(xstring);
-    for (unsigned i = 0; i < upper->length; ++i)
-        upper->c_str[i] = (char) toupper(upper->c_str[i]);
-    return upper;
+XString *xstring_to_upper(XString *xstring) {
+    for (unsigned i = 0; i < xstring->length; ++i)
+        xstring->c_str[i] = (char) toupper(xstring->c_str[i]);
+    return xstring;
 }
 
-XString *xstring_to_lower(const XString *xstring) {
-    XString *lower = xstring_copy(xstring);
-    for (unsigned i = 0; i < lower->length; ++i)
-        lower->c_str[i] = (char) tolower(lower->c_str[i]);
-    return lower;
+XString *xstring_to_lower(XString *xstring) {
+    for (unsigned i = 0; i < xstring->length; ++i)
+        xstring->c_str[i] = (char) tolower(xstring->c_str[i]);
+    return xstring;
 }
 
 XString *xstring_join(const XArray *xarray, const char *separator) {

@@ -62,15 +62,16 @@ void test_xstring_concat() {
 
     SECTION("Concatenation with empty string");
     XString *empty = xstring_new("");
+    XString *empty_cp = xstring_copy(empty);
     XString *content = xstring_new("Content");
     XString *res1 = xstring_concat(empty, content);
-    XString *res2 = xstring_concat(content, empty);
+    XString *res2 = xstring_concat(content, empty_cp);
     assert(strcmp(res1->c_str, "Content") == 0);
     assert(strcmp(res2->c_str, "Content") == 0);
+
     xstring_free(empty);
     xstring_free(content);
-    xstring_free(res1);
-    xstring_free(res2);
+    xstring_free(empty_cp);
 
     SECTION("Concatenation with C-string");
     XString *base = xstring_new("Base");
@@ -179,18 +180,20 @@ void test_xstring_case_conversions() {
     TEST_START("xstring_case_conversions");
     
     XString *s = xstring_new("MixEd CASe 123!");
-    
+    XString *s2 = xstring_new("MixEd CASe 123!");
+
     SECTION("To Upper");
     XString *upper = xstring_to_upper(s);
     assert(strcmp(upper->c_str, "MIXED CASE 123!") == 0);
     xstring_free(upper);
     
     SECTION("To Lower");
-    XString *lower = xstring_to_lower(s);
+    XString *lower = xstring_to_lower(s2);
     assert(strcmp(lower->c_str, "mixed case 123!") == 0);
     xstring_free(lower);
     
     xstring_free(s);
+    xstring_free(s2);
     TEST_PASS();
 }
 

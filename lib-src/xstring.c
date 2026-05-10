@@ -11,9 +11,11 @@ static void xstring_resize(XString *xstring, unsigned new_length);
 XString *xstring_new(const char *str) {
     XString *xstring = xmem_alloc(sizeof(XString));
     const size_t str_length = strlen(str);
+    const size_t capacity = str_length > 8 ?
+        str_length + (str_length >> 1) : 8;
 
     xstring->length = str_length;
-    xstring->capacity = str_length + (str_length >> 1);
+    xstring->capacity = capacity;
     xstring->c_str = xmem_alloc(xstring->capacity);
 
     strcpy(xstring->c_str, str);

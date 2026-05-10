@@ -64,6 +64,7 @@ add_executable(test_xstdlib test/test.c
         test/test_utils.h
         test/test_utils.c
         include/xstdlib.h
-        include/xio_utils.h)
+        include/xio_utils.h
+        include/xresult.h)
 
 target_link_libraries(test_xstdlib PRIVATE xstdlib)

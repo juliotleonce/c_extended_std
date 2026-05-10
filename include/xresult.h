@@ -1,12 +1,13 @@
 #ifndef EXTENDED_STD_XRESULT_H
 #define EXTENDED_STD_XRESULT_H
+#include <stdio.h>
 
-#define XResult(T) XResult_##T
+#define XResult(T) const XResult_##T
 
 #define DEFINE_XRESULT(T) typedef struct { T value; int error; } XResult_##T;
 
 #define OK(T, val) ((XResult_##T){ .value = (val), .error = 0 })
-#define ERR(T, err_code) ((XResult_##T){ .value = {0}, .error = (err_code) })
+#define ERR(T, err_code) ((XResult_##T){ .error = (err_code) })
 
 #define IS_OK(xresult) ({ \
     __typeof__(xresult) _tmp = (xresult); \
@@ -21,7 +22,7 @@
 #define UNWRAP(xresult) ({ \
     __typeof__(xresult) _tmp = (xresult); \
     if (_tmp.error != 0) { \
-        fprintf(stderr, "Panic: Unwrapped an error value (%d)\n", _tmp.error); \
+        fprintf(stderr, "Panic: Unwrapped an error value %d\n", _tmp.error); \
         exit(_tmp.error); \
     } \
     _tmp.value; \

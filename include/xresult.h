@@ -46,9 +46,9 @@
     _tmp.value; \
 })
 
-#define TRY(xresult, T_CURRENT) ({ \
+#define TRY(xresult, T) ({ \
     __typeof__(xresult) _tmp = (xresult); \
-    if (_tmp.error != 0) return ERR(T_CURRENT, _tmp.error); \
+    if (_tmp.error != 0) return ERR(T, _tmp.error); \
     _tmp.value; \
 })
 

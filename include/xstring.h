@@ -29,6 +29,8 @@ XString *xstring_to_upper(const XString *xstring);
 
 XString *xstring_to_lower(const XString *xstring);
 
+XString *xstring_join(const XArray *xarray, const char *separator);
+
 XArray *xstring_split(const XString *xstring, const char *separator);
 
 int xstring_find_first_index_of(const XString *xstring, const char *substring);

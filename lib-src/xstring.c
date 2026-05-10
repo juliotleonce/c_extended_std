@@ -79,6 +79,15 @@ XString *xstring_to_lower(const XString *xstring) {
     return lower;
 }
 
+XString *xstring_join(const XArray *xarray, const char *separator) {
+    XString *joined = xstring_new("");
+    for (unsigned i = 0; i < xarray->length; ++i) {
+        joined = xstring_concat(joined, &xarray->c_tab[i]);
+        if (i != xarray->length - 1) joined = xstring_concat_c_str(joined, separator);
+    }
+    return joined;
+}
+
 XArray *xstring_split(const XString *xstring, const char *separator) {
     XArray *split = xarray_new(sizeof(XString));
     unsigned separator_it = 0;

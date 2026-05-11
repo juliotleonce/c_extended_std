@@ -1,3 +1,8 @@
+/**
+ * @file xstdlib.h
+ * @brief Main header file for xstdlib, including all modules.
+ */
+
 #ifndef EXTENDED_STD_XSTDLIB_H
 #define EXTENDED_STD_XSTDLIB_H
 

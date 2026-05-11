@@ -125,9 +125,26 @@ XResult(int) divide(int a, int b) {
 }
 
 // Usage
-XResult_int res = divide(10, 2);
+XResult(int) res = divide(10, 2);
 if (IS_OK(res)) {
     printf("Result: %d\n", UNWRAP(res));
+}
+
+// Pointer result value
+DEFINE_XPTR(char);
+DEFINE_XRESULT(XPtr(char));
+XResult(XPtr(char)) read_file(const char *path) {
+    char *data = xmem_alloc(1024);
+    FILE *fp = fopen(path, "r");
+    if (!fp) return ERR(XPtr(char), -22);
+    fread(data, 1024, 1, fp);
+    fclose(fp);
+    return OK(XPtr(char), data);
+}
+
+XResult(XPtr(char)) res = read_file("file.txt");
+if (IS_OK(res)) {
+    printf("File content: %s\n", UNWRAP(res).c_str);
 }
 ```
 

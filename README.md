@@ -13,7 +13,7 @@
     - [XHashSet](#xhashset)
     - [XMemCtl](#xmemctl)
     - [XResult](#xresult)
-    - [XLinkedList](#xlinked-list)
+    - [XLinkedList](#xlinkedlist)
     - [XIOUtils](#xioutils)
 - [Usage Example](#usage-example)
 

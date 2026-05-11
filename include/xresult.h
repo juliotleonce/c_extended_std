@@ -3,8 +3,10 @@
 #include <stdio.h>
 
 #define XResult(T) const XResult_##T
+#define XPtr(T) const XPtr_##T
 
 #define DEFINE_XRESULT(T) typedef struct { T value; int error; } XResult_##T;
+#define DEFINE_XPTR(T) typedef T *XPtr_##T;
 
 #define OK(T, val) ((XResult_##T){ .value = (val), .error = 0 })
 #define ERR(T, err_code) ((XResult_##T){ .error = (err_code) })
@@ -52,5 +54,6 @@
     if (_tmp.error != 0) return ERR(T, _tmp.error); \
     _tmp.value; \
 })
+
 
 #endif

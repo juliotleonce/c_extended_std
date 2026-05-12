@@ -41,6 +41,16 @@ XString *xstring_concat_c_str(XString *xstring, const char *other) {
     return xstring;
 }
 
+XString *xstring_concat_char(XString *xstring, const char c) {
+    const size_t new_length = xstring->length + 1;
+    if (new_length > xstring->capacity) xstring_resize(xstring, new_length);
+
+    xstring->length = new_length;
+    xstring->c_str[new_length - 1] = c;
+    xstring->c_str[new_length] = '\0';
+    return xstring;
+}
+
 XString *xstring_substring(const XString *xstring, const unsigned start, const unsigned end) {
     XString *substring = xmem_alloc(sizeof(XString));
 

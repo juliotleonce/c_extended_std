@@ -120,7 +120,7 @@ Error management inspired by Rust's `Result` type.
 ```c
 DEFINE_XRESULT(int);
 XResult(int) divide(int a, int b) {
-    if (b == 0) return ERR(int, 1);
+    if (b == 0) return ERR(int, 1, "Can't divide by zero");
     return OK(int, a / b);
 }
 
@@ -136,7 +136,7 @@ DEFINE_XRESULT(XPtr(char));
 XResult(XPtr(char)) read_file(const char *path) {
     char *data = xmem_alloc(1024);
     FILE *fp = fopen(path, "r");
-    if (!fp) return ERR(XPtr(char), -22);
+    if (!fp) return ERR(XPtr(char), -22, "File not found");
     fread(data, 1024, 1, fp);
     fclose(fp);
     return OK(XPtr(char), data);
@@ -144,7 +144,7 @@ XResult(XPtr(char)) read_file(const char *path) {
 
 XResult(XPtr(char)) res = read_file("file.txt");
 if (IS_OK(res)) {
-    printf("File content: %s\n", UNWRAP(res).c_str);
+    printf("File content: %s\n", UNWRAP(res));
 }
 ```
 

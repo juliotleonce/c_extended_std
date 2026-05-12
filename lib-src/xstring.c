@@ -1,10 +1,8 @@
-#include "../include/xstring.h"
-
+#include "include/xstring.h"
+#include "include/xmemctl.h"
 #include <ctype.h>
-#include <stdlib.h>
 #include <string.h>
 
-#include "include/xmemctl.h"
 
 static void xstring_resize(XString *xstring, unsigned new_length);
 

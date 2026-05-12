@@ -8,6 +8,14 @@
 #include <stdio.h>
 
 /**
+ * @brief Error struct for details
+ */
+typedef struct XError {
+    int code;
+    char *message;
+} XError;
+
+/**
  * @brief Helper macro to refer to an XResult type of T.
  */
 #define XResult(T) const XResult_##T
@@ -21,7 +29,13 @@
  * @brief Defines a Result type for a given type T.
  * @param T The underlying type.
  */
-#define DEFINE_XRESULT(T) typedef struct { T value; int error; } XResult_##T;
+#define DEFINE_XRESULT(T) ({ typedef struct { \
+    bool success;\
+    union { \
+        T data;\
+        XError error; \
+    } result; \
+} XResult_##T; })
 
 /**
  * @brief Defines a Pointer type for a given type T.
@@ -34,14 +48,18 @@
  * @param T The underlying type.
  * @param val The value to wrap.
  */
-#define OK(T, val) ((XResult_##T){ .value = (val), .error = 0 })
+#define OK(T, val) ((XResult_##T){ .success = true, .result.data = (val) })
 
 /**
  * @brief Creates an Error result.
  * @param T The underlying type.
  * @param err_code The error code.
+ * @param err_message The error details.
  */
-#define ERR(T, err_code) ((XResult_##T){ .error = (err_code) })
+#define ERR(T, err_code, err_message) ((XResult_##T){ \
+    .success = false, \
+    .result.error = (XError){ .code = (err_code), .message = (err_message)} \
+})
 
 /**
  * @brief Checks if a result is OK.
@@ -49,7 +67,7 @@
  */
 #define IS_OK(xresult) ({ \
     __typeof__(xresult) _tmp = (xresult); \
-    _tmp.error == 0; \
+    _tmp.success == true; \
 })
 
 /**
@@ -58,7 +76,7 @@
  */
 #define IS_ERR(xresult) ({ \
     __typeof__(xresult) _tmp = (xresult); \
-    _tmp.error != 0; \
+    _tmp.success == false; \
 })
 
 /**
@@ -67,11 +85,12 @@
  */
 #define UNWRAP(xresult) ({ \
     __typeof__(xresult) _tmp = (xresult); \
-    if (_tmp.error != 0) { \
-        fprintf(stderr, "Panic: Unwrapped an error value %d\n", _tmp.error); \
-        exit(_tmp.error); \
+    if (_tmp.success == false) { \
+        fprintf(stderr, "Panic: Unwrapped an error value %d\n", _tmp.result.error.code); \
+        fprintf(stderr, "Details: %s", _tmp.result.error.message); \
+        exit(_tmp.result.error.code); \
     } \
-    _tmp.value; \
+    _tmp.result.data; \
 })
 
 /**
@@ -81,7 +100,7 @@
  */
 #define UNWRAP_OR(xresult, default_value) ({ \
     __typeof__(xresult) _tmp = (xresult); \
-    (_tmp.error == 0) ? _tmp.value : (default_value); \
+    (_tmp.success == false) ? _tmp.result.data; : (default_value); \
 })
 
 /**
@@ -91,7 +110,8 @@
  */
 #define PROPAGATE(xresult, T) do { \
     __typeof__(xresult) _tmp = (xresult); \
-    if (_tmp.error != 0) return ERR(T, _tmp.error); \
+    if (_tmp.success == false) \
+        return ERR(T, _tmp.result.error.code, _tmp.result.error.message); \
 } while (0)
 
 /**
@@ -101,11 +121,12 @@
  */
 #define EXPECT(xresult, msg) ({ \
     __typeof__(xresult) _tmp = (xresult); \
-    if (_tmp.error != 0) { \
-        fprintf(stderr, "Fatal Error: %s (Code: %d)\n", msg, _tmp.error); \
-        exit(_tmp.error); \
+    if (_tmp.success == false) { \
+        fprintf(stderr, "Fatal Error: %s (Code: %d)\n", msg, _tmp.result.error.code); \
+        fprintf(stderr, "Details: %s", _tmp.result.error.message); \
+        exit(_tmp.result.error.code); \
     } \
-    _tmp.value; \
+    _tmp.result.data; \
 })
 
 /**
@@ -115,8 +136,10 @@
  */
 #define TRY(xresult, T) ({ \
     __typeof__(xresult) _tmp = (xresult); \
-    if (_tmp.error != 0) return ERR(T, _tmp.error); \
-    _tmp.value; \
+    if (_tmp.error != 0) \
+        return ERR(T, _tmp.result.error.code, _tmp.result.error.message); \
+    _tmp.result.data; \
 })
+
 
 #endif

@@ -101,7 +101,8 @@ XString *xstring_to_lower(XString *xstring) {
 XString *xstring_join(const XArray *xarray, const char *separator) {
     XString *joined = xstring_new("");
     for (unsigned i = 0; i < xarray->length; ++i) {
-        joined = xstring_concat(joined, &xarray->c_tab[i]);
+        const XString *xstring_segments = xarray_at(xarray, i);
+        joined = xstring_concat(joined, xstring_segments);
         if (i != xarray->length - 1) joined = xstring_concat_c_str(joined, separator);
     }
     return joined;

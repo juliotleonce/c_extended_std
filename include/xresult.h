@@ -18,13 +18,13 @@ typedef struct XError {
 /**
  * @brief Helper macro to refer to an XResult type of T.
  */
-#define XRESULT_INNER(T) const XResult_##T
+#define XRESULT_INNER(T) const XResult_of_##T
 #define XResult(T) XRESULT_INNER(T)
 
 /**
  * @brief Helper macro to refer to an XPtr type of T.
  */
-#define XPtr(T) XPtr_##T
+#define XPtr(T) T##_ptr
 
 /**
  * @brief Defines a Result type for a given type T.
@@ -36,21 +36,21 @@ typedef struct XError {
         T data;\
         XError error; \
     } result; \
-} XResult_##T;
-#define DEFINE_XRESULT(T) DEFINE_XRESULT_INNER(T)
+} XResult_of_##T;
+#define DEFINE_XRESULT_OF(T) DEFINE_XRESULT_INNER(T)
 
 /**
  * @brief Defines a Pointer type for a given type T.
  * @param T The underlying type.
  */
-#define DEFINE_XPTR(T) typedef T* XPtr_##T;
+#define DEFINE_XPTR_OF(T) typedef T* T##_ptr;
 
 /**
  * @brief Creates an OK result.
  * @param T The underlying type.
  * @param val The value to wrap.
  */
-#define OK(T, val) ((XResult_##T){ .success = true, .result.data = (val) })
+#define OK(T, val) ((XResult_of_##T){ .success = true, .result.data = (val) })
 
 /**
  * @brief Creates an Error result.

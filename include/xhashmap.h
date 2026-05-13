@@ -20,8 +20,22 @@
  */
 #define LOAD_FACTOR 0.75f
 
+/**
+ * @brief Helper macro to define a type-safe alias for an XHashMap of a specific value type.
+ * @param T The type of values in the map.
+ */
 #define DEFINE_XHASHMAP_INNER(T) typedef XHashMap* XHashMap_of_##T;
+
+/**
+ * @brief Defines a type-safe alias for XHashMap of value type T.
+ * @note This macro uses typedef. Use it once per file or in a shared header to avoid redefinition.
+ */
 #define DEFINE_XHASHMAP_OF(T) DEFINE_XHASHMAP_INNER(T)
+
+/**
+ * @brief Helper macro to refer to a type-defined XHashMap of value type T.
+ * @param T The type of values.
+ */
 #define XHashMap_(T) XHashMap_of_##T
 
 /**
@@ -48,7 +62,7 @@ typedef struct {
 typedef struct {
     XHashMapEntry *entries; /**< Array of entries. */
     unsigned capacity;      /**< Total number of slots available. */
-    unsigned items_account; /**< Number of items currently in the map. */
+    unsigned items_count;   /**< Number of items currently in the map. */
     size_t type_size;       /**< Size of each value in bytes. */
 } XHashMap;
 

@@ -7,8 +7,22 @@
 #define EXTENDED_STD_XARRAY_H
 #include <stdlib.h>
 
+/**
+ * @brief Helper macro to define a type-safe alias for an XArray of a specific type.
+ * @param T The type of elements in the array.
+ */
 #define DEFINE_XARRAY_INNER(T) typedef XArray* XArray_of_##T;
+
+/**
+ * @brief Defines a type-safe alias for XArray of type T.
+ * @note This macro uses typedef. Use it once per file or in a shared header to avoid redefinition.
+ */
 #define DEFINE_XARRAY_OF(T) DEFINE_XARRAY_INNER(T)
+
+/**
+ * @brief Helper macro to refer to a type-defined XArray of type T.
+ * @param T The type of elements.
+ */
 #define XArray_(T) XArray_of_##T
 
 /**
@@ -24,11 +38,11 @@
 
 /**
  * @struct XArray
- * @brief Represents a dynamic array.
+ * @brief Represents a dynamic array (vector).
  */
 typedef struct XArray {
     unsigned length;    /**< Number of elements currently in the array. */
-    size_t capacity;    /**< Total capacity of the array. */
+    size_t capacity;    /**< Total capacity (number of slots) of the array. */
     size_t type_size;   /**< Size of each element in bytes. */
     void *c_tab;        /**< Pointer to the underlying memory buffer. */
 } XArray;

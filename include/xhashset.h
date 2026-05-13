@@ -20,8 +20,22 @@
  */
 #define LOAD_FACTOR 0.75f
 
+/**
+ * @brief Helper macro to define a type-safe alias for an XHashSet of a specific type.
+ * @param T The type of elements in the set.
+ */
 #define DEFINE_XHASHSET_INNER(T) typedef XHashSet* XHashSet_of_##T;
+
+/**
+ * @brief Defines a type-safe alias for XHashSet of type T.
+ * @note This macro uses typedef. Use it once per file or in a shared header to avoid redefinition.
+ */
 #define DEFINE_XHASHSET_OF(T) DEFINE_XHASHSET_INNER(T)
+
+/**
+ * @brief Helper macro to refer to a type-defined XHashSet of type T.
+ * @param T The type of elements.
+ */
 #define XHashSet_(T) XHashSet_of_##T
 
 /**
@@ -60,7 +74,7 @@ typedef struct{
     XHashSetItem *items;        /**< Array of items. */
     size_t type_size;           /**< Size of each element in bytes. */
     unsigned capacity;          /**< Total number of slots available. */
-    unsigned items_account;     /**< Number of items currently in the set. */
+    unsigned items_count;       /**< Number of items currently in the set. */
     XHashSetEqualFn equal_fn;   /**< Function used for equality comparison. */
     XHashSetHashFn hash_fn;     /**< Function used for hashing. */
 } XHashSet;

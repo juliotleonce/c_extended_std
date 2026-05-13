@@ -53,10 +53,10 @@ XString *xstring_concat(XString *xstring, const XString *other);
 XString *xstring_concat_c_str(XString *xstring, const char *other);
 
 /**
- * @brief  Concatenates a char to an XString
+ * @brief Concatenates a character to an XString.
  * @param xstring Pointer to the XString (will be modified).
- * @param c Char to concatenat
- * @return Point to the modified XString.
+ * @param c Character to concatenate.
+ * @return Pointer to the modified XString.
  */
 XString *xstring_concat_char(XString *xstring, char c);
 

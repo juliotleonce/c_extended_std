@@ -9,8 +9,8 @@
 
 /**
  * @brief Reads a line of text from the console.
- * @param prompt The prompt to display to the user.
- * @return A pointer to a new XString containing the input line.
+ * @param prompt The prompt message to display to the user.
+ * @return A pointer to a new XString containing the input line, or NULL on error.
  */
 XString *xio_read_console_line(const char *prompt);
 

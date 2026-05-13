@@ -7,8 +7,22 @@
 #define EXTENDED_STD_XLINKED_LIST_H
 #include <stddef.h>
 
+/**
+ * @brief Helper macro to define a type-safe alias for an XLinkedList of a specific type.
+ * @param T The type of elements in the list.
+ */
 #define DEFINE_XLINKED_LIST_INNER(T) typedef XLinkedList* XLinkedList_of_##T;
+
+/**
+ * @brief Defines a type-safe alias for XLinkedList of type T.
+ * @note This macro uses typedef. Use it once per file or in a shared header to avoid redefinition.
+ */
 #define DEFINE_XLINKED_LIST_OF(T) DEFINE_XLINKED_LIST_INNER(T)
+
+/**
+ * @brief Helper macro to refer to a type-defined XLinkedList of type T.
+ * @param T The type of elements.
+ */
 #define XLinkedList_(T) XLinkedList_of_##T
 
 /**
@@ -24,11 +38,12 @@ typedef void (*XLinkedListIteratorNextFn) (XLinkedListIterator *iterator);
 
 /**
  * @struct XLinkedListNode
- * @brief Represents a node in the linked list.
+ * @brief Represents a node in the doubly linked list.
  */
 typedef struct XLinkedListNode {
     void *value;                    /**< Pointer to the stored value. */
     struct XLinkedListNode *next;   /**< Pointer to the next node. */
+    struct XLinkedListNode *prev;   /**< Pointer to the previous node. */
 } XLinkedListNode;
 
 /**

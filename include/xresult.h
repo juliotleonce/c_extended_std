@@ -17,8 +17,13 @@ typedef struct XError {
 
 /**
  * @brief Helper macro to refer to an XResult type of T.
+ * @param T The underlying type.
  */
 #define XRESULT_INNER(T) const XResult_of_##T
+
+/**
+ * @brief Macro to refer to an XResult of type T.
+ */
 #define XResult(T) XRESULT_INNER(T)
 
 /**
@@ -27,7 +32,7 @@ typedef struct XError {
 #define XPtr(T) T##_ptr
 
 /**
- * @brief Defines a Result type for a given type T.
+ * @brief Internal macro to define a Result type for a given type T.
  * @param T The underlying type.
  */
 #define DEFINE_XRESULT_INNER(T) typedef struct { \
@@ -37,6 +42,11 @@ typedef struct XError {
         XError error; \
     } result; \
 } XResult_of_##T;
+
+/**
+ * @brief Defines an XResult type for type T.
+ * @note This macro uses typedef. Use it once per file or in a shared header to avoid redefinition.
+ */
 #define DEFINE_XRESULT_OF(T) DEFINE_XRESULT_INNER(T)
 
 /**
@@ -58,7 +68,7 @@ typedef struct XError {
  * @param err_code The error code.
  * @param err_message The error details.
  */
-#define ERR(T, err_code, err_message) ((XResult_##T){ \
+#define ERR(T, err_code, err_message) ((XResult_of_##T){ \
     .success = false, \
     .result.error = (XError){ .code = (err_code), .message = (err_message)} \
 })
@@ -98,11 +108,11 @@ typedef struct XError {
 /**
  * @brief Unwraps the value or returns a default value if it's an error.
  * @param xresult The result to unwrap.
- * @param default_value The value to return if error.
+ * @param default_value The value to return if it's an error.
  */
 #define UNWRAP_OR(xresult, default_value) ({ \
     __typeof__(xresult) _tmp = (xresult); \
-    (_tmp.success == false) ? _tmp.result.data; : (default_value); \
+    (_tmp.success == false) ? (default_value) : _tmp.result.data; \
 })
 
 /**
@@ -138,7 +148,7 @@ typedef struct XError {
  */
 #define TRY(xresult, T) ({ \
     __typeof__(xresult) _tmp = (xresult); \
-    if (_tmp.error != 0) \
+    if (_tmp.success == false) \
         return ERR(T, _tmp.result.error.code, _tmp.result.error.message); \
     _tmp.result.data; \
 })

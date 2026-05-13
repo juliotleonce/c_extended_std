@@ -78,7 +78,7 @@ void xmem_checkpoint();
 void xmem_rollback();
 
 /**
- * @brief Resets the memory controller, freeing all tracked memory.
+ * @brief Resets the memory controller, freeing all tracked memory and clearing checkpoints.
  */
 void xmem_reset(void);
 

@@ -18,30 +18,32 @@ typedef struct XError {
 /**
  * @brief Helper macro to refer to an XResult type of T.
  */
-#define XResult(T) const XResult_##T
+#define XRESULT_INNER(T) const XResult_##T
+#define XResult(T) XRESULT_INNER(T)
 
 /**
  * @brief Helper macro to refer to an XPtr type of T.
  */
-#define XPtr(T) const XPtr_##T
+#define XPtr(T) XPtr_##T
 
 /**
  * @brief Defines a Result type for a given type T.
  * @param T The underlying type.
  */
-#define DEFINE_XRESULT(T) ({ typedef struct { \
+#define DEFINE_XRESULT_INNER(T) typedef struct { \
     bool success;\
     union { \
         T data;\
         XError error; \
     } result; \
-} XResult_##T; })
+} XResult_##T;
+#define DEFINE_XRESULT(T) DEFINE_XRESULT_INNER(T)
 
 /**
  * @brief Defines a Pointer type for a given type T.
  * @param T The underlying type.
  */
-#define DEFINE_XPTR(T) typedef T *XPtr_##T;
+#define DEFINE_XPTR(T) typedef T* XPtr_##T;
 
 /**
  * @brief Creates an OK result.

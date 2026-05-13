@@ -6,6 +6,10 @@
 #ifndef EXTENDED_STD_XHASHSET_H
 #define EXTENDED_STD_XHASHSET_H
 
+#include <stdbool.h>
+#include <stddef.h>
+#include "xarray.h"
+
 /**
  * @brief Initial capacity for a newly created XHashSet.
  */
@@ -16,14 +20,9 @@
  */
 #define LOAD_FACTOR 0.75f
 
-/**
- * @brief Macro to create a new XHashSet.
- */
-#define XHASHSET_NEW() xhashset_create()
-
-#include <stdbool.h>
-#include <stddef.h>
-#include "xarray.h"
+#define DEFINE_XHASHSET_INNER(T) typedef XHashSet* XHashSet_of_##T;
+#define DEFINE_XHASHSET_OF(T) DEFINE_XHASHSET_INNER(T)
+#define XHashSet_(T) XHashSet_of_##T
 
 /**
  * @brief Function pointer type for hashing elements in the set.

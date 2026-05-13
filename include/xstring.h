@@ -20,6 +20,8 @@ typedef struct {
     char *c_str;        /**< Pointer to the C-style null-terminated string. */
 } XString;
 
+DEFINE_XARRAY_OF(XString)
+
 /**
  * @brief Creates a new XString from a C-style string.
  * @param str The source C-style string.
@@ -96,7 +98,7 @@ XString *xstring_to_lower(XString *xstring);
  * @param separator The string to insert between each element.
  * @return A pointer to the newly created XString.
  */
-XString *xstring_join(const XArray *xarray, const char *separator);
+XString *xstring_join(XArray_(XString) xarray, const char *separator);
 
 /**
  * @brief Splits an XString into an XArray of XStrings using a separator.
@@ -104,7 +106,7 @@ XString *xstring_join(const XArray *xarray, const char *separator);
  * @param separator The string to split by.
  * @return A pointer to a new XArray containing XString pointers.
  */
-XArray *xstring_split(const XString *xstring, const char *separator);
+XArray_(XString) xstring_split(const XString *xstring, const char *separator);
 
 /**
  * @brief Finds the first occurrence of a substring in the XString.

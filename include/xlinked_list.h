@@ -7,6 +7,10 @@
 #define EXTENDED_STD_XLINKED_LIST_H
 #include <stddef.h>
 
+#define DEFINE_XLINKED_LIST_INNER(T) typedef XLinkedList* XLinkedList_of_##T;
+#define DEFINE_XLINKED_LIST_OF(T) DEFINE_XLINKED_LIST_INNER(T)
+#define XLinkedList_(T) XLinkedList_of_##T
+
 /**
  * @struct XLinkedListIterator
  * @brief Opaque iterator for XLinkedList.

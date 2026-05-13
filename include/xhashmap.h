@@ -6,6 +6,10 @@
 #ifndef EXTENDED_STD_XHASHMAP_H
 #define EXTENDED_STD_XHASHMAP_H
 
+#include <stdbool.h>
+#include <stddef.h>
+#include "xarray.h"
+
 /**
  * @brief Initial capacity for a newly created XHashMap.
  */
@@ -16,15 +20,15 @@
  */
 #define LOAD_FACTOR 0.75f
 
+#define DEFINE_XHASHMAP_INNER(T) typedef XHashMap* XHashMap_of_##T;
+#define DEFINE_XHASHMAP_OF(T) DEFINE_XHASHMAP_INNER(T)
+#define XHashMap_(T) XHashMap_of_##T
+
 /**
  * @brief Macro to create a new XHashMap with a specific value type.
  * @param ItemsValueType The type of values to be stored in the map.
  */
 #define XHASHMAP_NEW(ItemsValueType) xhashmap_new(sizeof(ItemsValueType))
-
-#include <stdbool.h>
-#include <stddef.h>
-#include "xarray.h"
 
 /**
  * @struct XHashMapEntry

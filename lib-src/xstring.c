@@ -98,7 +98,7 @@ XString *xstring_to_lower(XString *xstring) {
     return xstring;
 }
 
-XString *xstring_join(const XArray *xarray, const char *separator) {
+XString *xstring_join(XArray_(XString) xarray, const char *separator) {
     XString *joined = xstring_new("");
     for (unsigned i = 0; i < xarray->length; ++i) {
         const XString *xstring_segments = xarray_at(xarray, i);

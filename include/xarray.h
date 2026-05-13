@@ -7,6 +7,10 @@
 #define EXTENDED_STD_XARRAY_H
 #include <stdlib.h>
 
+#define DEFINE_XARRAY_INNER(T) typedef XArray* XArray_of_##T;
+#define DEFINE_XARRAY_OF(T) DEFINE_XARRAY_INNER(T)
+#define XArray_(T) XArray_of_##T
+
 /**
  * @brief Macro to create a new XArray with a specific element type.
  * @param ElementType The type of elements to be stored in the array.

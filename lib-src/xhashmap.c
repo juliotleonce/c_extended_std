@@ -25,7 +25,7 @@ XHashMap *xhashmap_new(const size_t type_size) {
 
     xhashmap->entries = xmem_alloc(INITIAL_CAPACITY * sizeof(XHashMapEntry));
     xhashmap->capacity = INITIAL_CAPACITY;
-    xhashmap->items_account = 0;
+    xhashmap->items_count = 0;
     xhashmap->type_size = type_size;
 
     return xhashmap;
@@ -45,7 +45,7 @@ void xhashmap_put(XHashMap *xhashmap, const char *key, const void *value) {
 
         if (!existing_entry->is_taken) {
             xhashmap_entry_copy(entry_to_insert, existing_entry, xhashmap->type_size);
-            xhashmap->items_account++;
+            xhashmap->items_count++;
             break;
         }
 
@@ -97,7 +97,7 @@ void xhashmap_remove(XHashMap *xhashmap, const char *key) {
         if (entry->psl < psl) break;
         if (strcmp(entry->key, key) == 0) {
             xhashmap_entry_reset(entry);
-            xhashmap->items_account--;
+            xhashmap->items_count--;
 
             while (true) {
                 const unsigned neighbour_index = (index + 1) % xhashmap->capacity;
@@ -154,7 +154,7 @@ void xhashmap_free(const XHashMap *xhashmap) {
 
 
 static float xhashmap_load_factor(const XHashMap *xhashmap) {
-    return (float)xhashmap->items_account / (float)xhashmap->capacity;
+    return (float)xhashmap->items_count / (float)xhashmap->capacity;
 }
 
 static unsigned xhashmap_hash_key(const unsigned capacity, const char *key) {
@@ -169,7 +169,7 @@ static void xhashmap_resize(XHashMap *xhashmap) {
     const XHashMapEntry *old_entries = xhashmap->entries;
 
     xhashmap->capacity *= 2;
-    xhashmap->items_account = 0;
+    xhashmap->items_count = 0;
     xhashmap->entries = xmem_alloc(xhashmap->capacity * sizeof(XHashMapEntry));
 
     for (unsigned i = 0; i < old_capacity; ++i) {

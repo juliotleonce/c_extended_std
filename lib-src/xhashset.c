@@ -21,7 +21,7 @@ XHashSet *xhashset_new(const size_t type_size, const XHashSetEqualFn equal_fn, c
 
     xhashset->items = xmem_alloc(INITIAL_CAPACITY * sizeof(XHashSetItem));
     xhashset->capacity = INITIAL_CAPACITY;
-    xhashset->items_account = 0;
+    xhashset->items_count = 0;
     xhashset->type_size = type_size;
     xhashset->equal_fn = equal_fn;
     xhashset->hash_fn = hash_fn;
@@ -47,7 +47,7 @@ void xhashset_add(XHashSet *xhashset, const void *item_value){
             existing_item->value = current_value;
             existing_item->is_taken = true;
             existing_item->psl = psl;
-            xhashset->items_account++;
+            xhashset->items_count++;
             break;
         }
 
@@ -99,7 +99,7 @@ void xhashset_remove(XHashSet *xhashset, const void *item_value) {
         if (item->psl < psl) return;
         if (xhashset->equal_fn(item->value, item_value, xhashset->type_size)) {
             xhashset_item_reset(item);
-            xhashset->items_account--;
+            xhashset->items_count--;
 
             while (true) {
                 const unsigned neighbour_index = (index + 1) % xhashset->capacity;
@@ -214,7 +214,7 @@ void xhashset_clear(XHashSet *xhashset) {
     xmem_free(xhashset->items);
     xhashset->items = xmem_alloc(INITIAL_CAPACITY * sizeof(XHashSetItem));
     xhashset->capacity = INITIAL_CAPACITY;
-    xhashset->items_account = 0;
+    xhashset->items_count = 0;
 }
 
 unsigned xhashset_default_hash_fn(const unsigned capacity, const void *element, const size_t type_size) {
@@ -248,7 +248,7 @@ void xhashset_free(const XHashSet *xhashset){
  */
 
 float xhashset_load_factor(const XHashSet *xhashset) {
-    return (float)xhashset->items_account / (float)xhashset->capacity;
+    return (float)xhashset->items_count / (float)xhashset->capacity;
 }
 
 void xhashset_resize(XHashSet *xhashset) {
@@ -256,7 +256,7 @@ void xhashset_resize(XHashSet *xhashset) {
     const XHashSetItem *old_items = xhashset->items;
 
     xhashset->capacity *= 2;
-    xhashset->items_account = 0;
+    xhashset->items_count = 0;
     xhashset->items = xmem_alloc(xhashset->capacity * sizeof(XHashSetItem));
 
     for (unsigned i = 0; i < old_capacity; ++i) {

@@ -14,7 +14,7 @@ void test_xhashset_basic() {
     if (!xhashset_has(set, &val1)) TEST_FAIL("Set should contain val1");
     if (!xhashset_has(set, &val2)) TEST_FAIL("Set should contain val2");
     if (xhashset_has(set, &val3)) TEST_FAIL("Set should not contain val3");
-    if (set->items_account != 2) TEST_FAIL("Set count should be 2");
+    if (set->items_count != 2) TEST_FAIL("Set count should be 2");
 
     xhashset_free(set);
     TEST_PASS();
@@ -34,11 +34,11 @@ void test_xhashset_remove() {
     xhashset_remove(set, &to_remove);
 
     if (xhashset_has(set, &to_remove)) TEST_FAIL("Set should not contain removed value");
-    if (set->items_account != 4) TEST_FAIL("Set count should be 4 after removal");
+    if (set->items_count != 4) TEST_FAIL("Set count should be 4 after removal");
 
     int not_in_set = 10;
     xhashset_remove(set, &not_in_set);
-    if (set->items_account != 4) TEST_FAIL("Set count should still be 4 after removing non-existent value");
+    if (set->items_count != 4) TEST_FAIL("Set count should still be 4 after removing non-existent value");
 
     xhashset_free(set);
     TEST_PASS();
@@ -53,7 +53,7 @@ void test_xhashset_clear() {
     xhashset_add(set, &val);
     xhashset_clear(set);
 
-    if (set->items_account != 0) TEST_FAIL("Set should be empty after clear");
+    if (set->items_count != 0) TEST_FAIL("Set should be empty after clear");
     if (xhashset_has(set, &val)) TEST_FAIL("Set should not contain value after clear");
 
     xhashset_free(set);
@@ -76,7 +76,7 @@ void test_xhashset_union() {
 
     XHashSet *set_union = xhashset_union(set_a, set_b);
 
-    if (set_union->items_account != 4) TEST_FAIL("Union should have 4 elements");
+    if (set_union->items_count != 4) TEST_FAIL("Union should have 4 elements");
     if (!xhashset_has(set_union, &a1)) TEST_FAIL("Union missing a1");
     if (!xhashset_has(set_union, &common)) TEST_FAIL("Union missing common");
     if (!xhashset_has(set_union, &b1)) TEST_FAIL("Union missing b1");
@@ -102,7 +102,7 @@ void test_xhashset_intersection() {
 
     XHashSet *set_inter = xhashset_intersection(set_a, set_b);
 
-    if (set_inter->items_account != 1) TEST_FAIL("Intersection should have 1 element");
+    if (set_inter->items_count != 1) TEST_FAIL("Intersection should have 1 element");
     if (!xhashset_has(set_inter, &common)) TEST_FAIL("Intersection missing common element");
     if (xhashset_has(set_inter, &a1)) TEST_FAIL("Intersection should not have a1");
 
@@ -127,7 +127,7 @@ void test_xhashset_difference() {
 
     XHashSet *set_diff = xhashset_difference(set_a, set_b);
 
-    if (set_diff->items_account != 1) TEST_FAIL("Difference should have 1 element");
+    if (set_diff->items_count != 1) TEST_FAIL("Difference should have 1 element");
     if (!xhashset_has(set_diff, &a1)) TEST_FAIL("Difference missing a1");
     if (xhashset_has(set_diff, &common)) TEST_FAIL("Difference should not have common element");
 
@@ -174,7 +174,7 @@ void test_xhashset_duplicates() {
     xhashset_add(set, &val);
     xhashset_add(set, &val);
 
-    if (set->items_account != 1) TEST_FAIL("Set should only contain 1 element after adding duplicates");
+    if (set->items_count != 1) TEST_FAIL("Set should only contain 1 element after adding duplicates");
 
     xhashset_free(set);
     TEST_PASS();
@@ -190,7 +190,7 @@ void test_xhashset_resize() {
         xhashset_add(set, &i);
     }
 
-    if (set->items_account != (unsigned)num_elements) TEST_FAIL("Set should contain all elements after resize");
+    if (set->items_count != (unsigned)num_elements) TEST_FAIL("Set should contain all elements after resize");
     if (set->capacity <= INITIAL_CAPACITY) TEST_FAIL("Set should have resized");
 
     for (int i = 0; i < num_elements; i++) {
@@ -214,7 +214,7 @@ void test_xhashset_strings() {
     xhashset_add(set, &s2);
     xhashset_add(set, &s3);
 
-    if (set->items_account != 2) TEST_FAIL("Set should contain 2 unique strings");
+    if (set->items_count != 2) TEST_FAIL("Set should contain 2 unique strings");
     if (!xhashset_has(set, &s1)) TEST_FAIL("Set missing 'hello'");
     if (!xhashset_has(set, &s2)) TEST_FAIL("Set missing 'world'");
 
@@ -233,17 +233,17 @@ void test_xhashset_empty_operations() {
 
     SECTION("Union with empty");
     XHashSet *u = xhashset_union(set_a, set_b);
-    if (u->items_account != 1) TEST_FAIL("Union with empty set failed");
+    if (u->items_count != 1) TEST_FAIL("Union with empty set failed");
     xhashset_free(u);
 
     SECTION("Intersection with empty");
     XHashSet *i = xhashset_intersection(set_a, set_b);
-    if (i->items_account != 0) TEST_FAIL("Intersection with empty set should be empty");
+    if (i->items_count != 0) TEST_FAIL("Intersection with empty set should be empty");
     xhashset_free(i);
 
     SECTION("Difference with empty");
     XHashSet *d = xhashset_difference(set_a, set_b);
-    if (d->items_account != 1) TEST_FAIL("Difference with empty set failed");
+    if (d->items_count != 1) TEST_FAIL("Difference with empty set failed");
     xhashset_free(d);
 
     xhashset_free(set_a);
@@ -262,7 +262,7 @@ void test_xhashset_stress() {
         xhashset_add(set, &i);
     }
 
-    if (set->items_account != (unsigned)num_elements) TEST_FAIL("Stress: item count mismatch after additions");
+    if (set->items_count != (unsigned)num_elements) TEST_FAIL("Stress: item count mismatch after additions");
 
     SECTION("Checking presence");
     for (int i = 0; i < num_elements; i++) {
@@ -273,7 +273,7 @@ void test_xhashset_stress() {
     for (int i = 0; i < num_elements; i += 2) {
         xhashset_remove(set, &i);
     }
-    if (set->items_account != (unsigned)num_elements / 2) TEST_FAIL("Stress: item count mismatch after partial removal");
+    if (set->items_count != (unsigned)num_elements / 2) TEST_FAIL("Stress: item count mismatch after partial removal");
 
     SECTION("Checking remaining elements");
     for (int i = 0; i < num_elements; i++) {
@@ -300,7 +300,7 @@ void test_xhashset_memory_cycles() {
             xhashset_add(set, &i);
         }
         xhashset_clear(set);
-        if (set->items_account != 0) TEST_FAIL("Memory Cycles: items_account not 0 after clear");
+        if (set->items_count != 0) TEST_FAIL("Memory Cycles: items_account not 0 after clear");
 
         for (int i = 0; i < elements_per_cycle; i++) {
             xhashset_add(set, &i);

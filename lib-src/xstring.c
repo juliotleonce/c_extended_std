@@ -144,6 +144,11 @@ XArray *xstring_split(const XString *xstring, const char *separator) {
     return split;
 }
 
+char xstring_at(const XString *xstring, unsigned index) {
+    if (xstring->length <= index) return '\0';
+    return xstring->c_str[index];
+}
+
 int xstring_find_first_index_of(const XString *xstring, const char *substring) {
     unsigned sub_string_it = 0;
     unsigned xstring_it = 0;

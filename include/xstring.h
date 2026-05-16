@@ -109,6 +109,14 @@ XString *xstring_join(XArray_(XString) xarray, const char *separator);
 XArray_(XString) xstring_split(const XString *xstring, const char *separator);
 
 /**
+ * @brief Get the character at the specified index.
+ * @param xstring Pointer to the XString.
+ * @param index The index of the character.
+ * @return The character at the specified index.
+ */
+char xstring_at(const XString *xstring, unsigned index);
+
+/**
  * @brief Finds the first occurrence of a substring in the XString.
  * @param xstring Pointer to the XString.
  * @param substring The substring to find.

@@ -60,7 +60,8 @@ typedef struct XError {
  * @param T The underlying type.
  * @param val The value to wrap.
  */
-#define OK(T, val) ((XResult_of_##T){ .success = true, .result.data = (val) })
+#define OK_INNER(T, val) ((XResult_of_##T){ .success = true, .result.data = (val) })
+#define OK(T, val) OK_INNER(T, val)
 
 /**
  * @brief Creates an Error result.
@@ -68,10 +69,11 @@ typedef struct XError {
  * @param err_code The error code.
  * @param err_message The error details.
  */
-#define ERR(T, err_code, err_message) ((XResult_of_##T){ \
+#define ERR_INNER(T, err_code, err_message) ((XResult_of_##T){ \
     .success = false, \
     .result.error = (XError){ .code = (err_code), .message = (err_message)} \
 })
+#define ERR(T, err_code, err_message) ERR_INNER(T, err_code, err_message)
 
 /**
  * @brief Checks if a result is OK.

@@ -6,6 +6,7 @@
 #ifndef EXTENDED_STD_XRESULT_H
 #define EXTENDED_STD_XRESULT_H
 #include <stdio.h>
+#include "xmemctl.h"
 
 /**
  * @brief Error struct for details
@@ -145,15 +146,26 @@ typedef struct XError {
 
 /**
  * @brief Tries to unwrap the value or propagates the error.
+ * Need to be called inside GUARD_BLOCK
  * @param xresult The result to unwrap.
  * @param T The underlying type of the result being returned.
  */
 #define TRY(xresult, T) ({ \
     __typeof__(xresult) _tmp = (xresult); \
-    if (_tmp.success == false) \
+    if (_tmp.success == false) { \
+        xmem_rollback(); \
         return ERR(T, _tmp.result.error.code, _tmp.result.error.message); \
+    };\
     _tmp.result.data; \
 })
+
+/**
+ * @brief Macro to create a scope that automatically rolls back memory allocations.
+ */
+#define GUARD_BLOCK \
+    for (int X_CONCAT(_scope_i_, __LINE__) = (xmem_checkpoint(), 0); \
+        X_CONCAT(_scope_i_, __LINE__) < 1; \
+        X_CONCAT(_scope_i_, __LINE__)++, xmem_remove_checkpoint())
 
 
 #endif

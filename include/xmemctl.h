@@ -73,6 +73,11 @@ void *xmem_realloc(void *ptr, size_t size);
 void xmem_checkpoint();
 
 /**
+ * @brief Remove the last memory checkpoint.
+ */
+void xmem_remove_checkpoint();
+
+/**
  * @brief Rolls back to the last memory checkpoint, freeing all memory allocated since then.
  */
 void xmem_rollback();

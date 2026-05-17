@@ -56,6 +56,13 @@ void xmem_checkpoint() {
     xmem_stack_add_ptr(checkpoint_ptr);
 }
 
+void xmem_remove_checkpoint() {
+    const uintptr_t *checkpoint_ptr = (uintptr_t *) global_mem_stack.current_checkpoint_addr;
+    const uintptr_t checkpoint_ptr_addr = (uintptr_t) checkpoint_ptr;
+    global_mem_stack.current_checkpoint_addr = checkpoint_ptr_addr;
+    xmem_free(checkpoint_ptr);
+}
+
 void xmem_rollback() {
     const uintptr_t *checkpoint_ptr = (uintptr_t *) global_mem_stack.current_checkpoint_addr;
     const uintptr_t checkpoint_ptr_addr = (uintptr_t) checkpoint_ptr;

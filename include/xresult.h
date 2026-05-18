@@ -167,5 +167,20 @@ typedef struct XError {
         X_CONCAT(_scope_i_, __LINE__) < 1; \
         X_CONCAT(_scope_i_, __LINE__)++, xmem_remove_checkpoint())
 
+/**
+ * @brief Macro to get the error code from a result.
+ */
+#define ERR_CODE(xresult) (xresult).result.error.code
+
+/**
+ * @brief Macro to get the error message from a result.
+ */
+#define ERR_MSG(xresult) ((xresult).result.error.message)
+
+/**
+ * @brief Macro to print the error message and code from a result.
+ */
+#define PRINT_ERROR(xresult) \
+    fprintf(stderr, "Error: %s (Code: %d)\n", ERR_MSG(xresult), ERR_CODE(xresult))
 
 #endif

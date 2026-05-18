@@ -7,6 +7,8 @@
 XString *xio_read_console_line(const char *prompt) {
     printf("%s", prompt);
     fflush(stdout);
+    fflush(stderr);
+
 
     char *line = NULL;
     size_t len = 0;
